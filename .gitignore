@@ -1,0 +1,4 @@
+bin/*
+config*.toml
+db/gen
+db/matrix/gen
