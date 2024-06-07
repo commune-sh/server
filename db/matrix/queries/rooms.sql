@@ -13,14 +13,14 @@ FROM current_state_events cse JOIN event_json ej ON ej.event_id = cse.event_id
 WHERE cse.room_id = $1
 AND cse.type = 'm.room.join_rules';
 
--- name: GetRoomJoinRules :one
-SELECT ej.json::jsonb->'content'->>'join_rule' AS visibility 
-FROM current_state_events cse JOIN event_json ej ON ej.event_id = cse.event_id 
-WHERE cse.room_id = $1
-AND cse.type = 'm.room.join_rules';
-
 -- name: GetRoomGuestAccess :one
 SELECT ej.json::jsonb->'content'->>'guest_access' AS visibility 
 FROM current_state_events cse JOIN event_json ej ON ej.event_id = cse.event_id 
 WHERE cse.room_id = $1
 AND cse.type = 'm.room.guest_access';
+
+-- name: GetRoomCurrentStateEvents :many
+SELECT ej.json::jsonb->>'content' as content
+FROM current_state_events cse
+JOIN event_json ej ON ej.event_id = cse.event_id
+WHERE ej.room_id = $1;
