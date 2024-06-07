@@ -1,6 +1,18 @@
 -- name: IsRoomPublic :one
 SELECT exists(select 1 from rooms where room_id = $1 and is_public = true);
 
+-- name: GetRoomIDFromAlias :one
+SELECT rooms.room_id 
+FROM rooms JOIN room_aliases 
+ON rooms.room_id = room_aliases.room_id 
+WHERE room_aliases.room_alias = $1;
+
+-- name: GetRoomAliasFromID :one
+SELECT room_aliases.room_alias
+FROM rooms JOIN room_aliases
+ON rooms.room_id = room_aliases.room_id
+WHERE rooms.room_id = $1;
+
 -- name: GetRoomHistoryVisibility :one
 SELECT ej.json::jsonb->'content'->>'history_visibility' AS visibility 
 FROM current_state_events cse JOIN event_json ej ON ej.event_id = cse.event_id 
