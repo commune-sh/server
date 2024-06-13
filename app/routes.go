@@ -50,8 +50,10 @@ func routes(c *App) chi.Router {
 		r.Get("/", c.RobotsTXT())
 	})
 
-	r.Route("/room", func(r chi.Router) {
-		r.Get("/{room_id}/hierarchy", c.RoomHierarchy())
+	r.Route("/room/{room_id}", func(r chi.Router) {
+		r.Use(c.ValidateRoom)
+		r.Get("/hierarchy", c.RoomHierarchy())
+		r.Get("/state_events", c.RoomStateEvents())
 	})
 
 	r.Route("/", func(r chi.Router) {

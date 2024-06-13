@@ -34,12 +34,6 @@ FROM current_state_events cse JOIN event_json ej ON ej.event_id = cse.event_id
 WHERE cse.room_id = $1
 AND cse.type = 'm.room.guest_access';
 
--- name: GetRoomCurrentStateEvents :many
-SELECT ej.json::jsonb->>'content' as content
-FROM current_state_events cse
-JOIN event_json ej ON ej.event_id = cse.event_id
-WHERE ej.room_id = $1;
-
 -- name: GetRoomJoinedMembers :one
 SELECT joined_members 
 FROM room_stats_current

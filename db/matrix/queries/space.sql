@@ -29,7 +29,7 @@ SELECT * FROM room_hierarchy;
 
 -- name: GetCurrentStateEvents :many
 SELECT cse.type current_state_event, 
-    ej.json as content
+    ej.json as event_json
 FROM current_state_events cse
 JOIN event_json ej 
 ON ej.event_id = cse.event_id
