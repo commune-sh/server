@@ -1,3 +1,6 @@
+-- name: DoesRoomExist :one
+SELECT exists(select 1 from rooms where room_id = $1);
+
 -- name: IsRoomPublic :one
 SELECT exists(select 1 from rooms where room_id = $1 and is_public = true);
 
@@ -36,4 +39,9 @@ SELECT ej.json::jsonb->>'content' as content
 FROM current_state_events cse
 JOIN event_json ej ON ej.event_id = cse.event_id
 WHERE ej.room_id = $1;
+
+-- name: GetRoomJoinedMembers :one
+SELECT joined_members 
+FROM room_stats_current
+WHERE room_id = $1;
 

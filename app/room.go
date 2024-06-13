@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -17,7 +18,7 @@ type RoomHierarchyItem struct {
 	WorldReadable    bool          `json:"world_readable"`
 	Name             string        `json:"name"`
 	Topic            string        `json:"topic,omitempty"`
-	NumJoinedMembers int64         `json:"num_joined_members"`
+	NumJoinedMembers int32         `json:"num_joined_members"`
 	GuestCanJoin     bool          `json:"guest_can_join"`
 	AvatarURL        string        `json:"avatar_url,omitempty"`
 	ChildrenState    []interface{} `json:"children_state,omitempty"`
@@ -28,6 +29,54 @@ func (c *App) RoomHierarchy() http.HandlerFunc {
 
 		room_id := chi.URLParam(r, "room_id")
 
+		// missing room param
+		if room_id == "" {
+			RespondWithError(w, &JSONResponse{
+				Code: http.StatusInternalServerError,
+				JSON: map[string]any{
+					"error": "room_id is required",
+				},
+			})
+			return
+		}
+
+		// does room exist?
+		exists, err := c.MatrixDB.Queries.DoesRoomExist(context.Background(), room_id)
+
+		if err != nil || !exists {
+			RespondWithError(w, &JSONResponse{
+				Code: http.StatusInternalServerError,
+				JSON: map[string]any{
+					"error": "room does not exist",
+				},
+			})
+			return
+		}
+
+		// is room public?
+		is_public, err := c.MatrixDB.Queries.IsRoomPublic(context.Background(), room_id)
+
+		if err != nil {
+			RespondWithError(w, &JSONResponse{
+				Code: http.StatusInternalServerError,
+				JSON: map[string]any{
+					"error": err.Error(),
+				},
+			})
+			return
+		}
+
+		if !is_public {
+			RespondWithJSON(w, &JSONResponse{
+				Code: http.StatusInternalServerError,
+				JSON: map[string]any{
+					"error": "room is not public",
+				},
+			})
+			return
+		}
+
+		// get room hierarchy
 		h, err := c.MatrixDB.Queries.GetRoomHierarchy(context.Background(), room_id)
 		if err != nil {
 			RespondWithError(w, &JSONResponse{
@@ -48,6 +97,16 @@ func (c *App) RoomHierarchy() http.HandlerFunc {
 					RoomID: id,
 				}
 
+				joined, err := c.MatrixDB.Queries.GetRoomJoinedMembers(context.Background(), room_id)
+				if err != nil {
+					log.Println(err)
+				}
+
+				if joined > 0 {
+					room.NumJoinedMembers = joined
+				}
+
+				// get current state events
 				events, err := c.MatrixDB.Queries.GetCurrentStateEvents(context.Background(), id)
 				if err != nil {
 					continue
