@@ -36,3 +36,4 @@ SELECT ej.json::jsonb->>'content' as content
 FROM current_state_events cse
 JOIN event_json ej ON ej.event_id = cse.event_id
 WHERE ej.room_id = $1;
+
