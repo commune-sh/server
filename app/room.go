@@ -121,6 +121,11 @@ func (c *App) RoomHierarchy() http.HandlerFunc {
 							cs.Content = json.RawMessage(content.Raw)
 						}
 
+						typ := gjson.Get(x.Content.String, "type")
+						if typ.String() != "" {
+							cs.Type = typ.String()
+						}
+
 						state_key := gjson.Get(x.Content.String, "state_key")
 						if state_key.String() != "" {
 							cs.StateKey = state_key.String()
