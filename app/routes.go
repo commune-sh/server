@@ -3,15 +3,11 @@ package app
 import (
 	"io"
 	"net/http"
-	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/hostrouter"
-	"github.com/lpar/gzipped"
 	"github.com/unrolled/secure"
 )
 
@@ -29,7 +25,6 @@ func (c *App) Routes() {
 	c.Router.Use(compressor.Handler)
 
 	c.CORS()
-	c.ServeStaticFiles()
 
 	hr := hostrouter.New()
 
@@ -57,7 +52,6 @@ func routes(c *App) chi.Router {
 
 	r.Route("/room", func(r chi.Router) {
 		r.Get("/{room_id}/hierarchy", c.RoomHierarchy())
-		r.Get("/", c.Test())
 	})
 
 	r.Route("/", func(r chi.Router) {
@@ -76,57 +70,12 @@ func routes(c *App) chi.Router {
 
 func (c *App) NotFound(w http.ResponseWriter, r *http.Request) {
 
-	RespondWithJSON(w, &JSONResponse{
+	RespondWithError(w, &JSONResponse{
 		Code: http.StatusNotFound,
 		JSON: map[string]any{
 			"message": "resource not found",
 		},
 	})
-}
-
-func (c *App) ServeStaticFiles() {
-
-	path := "/static"
-	if strings.ContainsAny(path, "{}*") {
-		panic("FileServer does not permit URL parameters.")
-	}
-
-	workDir, _ := os.Getwd()
-	filesDir := filepath.Join(workDir, "static")
-
-	fs := http.StripPrefix(path, gzipped.FileServer(FileSystem{http.Dir(filesDir)}))
-
-	if path != "/" && path[len(path)-1] != '/' {
-		c.Router.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
-		path += "/"
-	}
-	path += "*"
-
-	c.Router.Get(path, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Cache-Control", "max-age=31536000")
-		fs.ServeHTTP(w, r)
-	}))
-}
-
-type FileSystem struct {
-	fs http.FileSystem
-}
-
-func (nfs FileSystem) Open(path string) (http.File, error) {
-	f, err := nfs.fs.Open(path)
-	if err != nil {
-		return nil, err
-	}
-
-	s, err := f.Stat()
-	if s.IsDir() {
-		index := strings.TrimSuffix(path, "/") + "/index.html"
-		if _, err := nfs.fs.Open(index); err != nil {
-			return nil, err
-		}
-	}
-
-	return f, nil
 }
 
 func (c *App) CORS() {

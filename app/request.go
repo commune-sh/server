@@ -8,13 +8,9 @@ import (
 	"net/http"
 )
 
-// JSONResponse represents an HTTP response which contains a JSON body.
 type JSONResponse struct {
-	// HTTP status code.
-	Code int
-	// JSON represents the JSON that should be serialised and sent to the client
-	JSON interface{}
-	// Headers represent any headers that should be sent to the client
+	Code    int
+	JSON    interface{}
 	Headers map[string]string
 }
 
@@ -61,13 +57,16 @@ func RespondWithJSON(w http.ResponseWriter, res *JSONResponse) {
 	w.Write(response)
 }
 
-func RespondWithBadRequestError(w http.ResponseWriter) {
-	RespondWithJSON(w, &JSONResponse{
-		Code: http.StatusOK,
-		JSON: map[string]any{
-			"error": "yikes, bad request",
-		},
-	})
+func RespondWithError(w http.ResponseWriter, res *JSONResponse) {
+	response, err := json.Marshal(res.JSON)
+	if err != nil {
+		res = MessageResponse(500, "Internal Server Error")
+		response, _ = json.Marshal(res.JSON)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(res.Code)
+	w.Write(response)
 }
 
 func (c *App) RobotsTXT() http.HandlerFunc {
