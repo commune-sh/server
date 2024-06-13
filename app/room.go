@@ -71,49 +71,49 @@ func (c *App) RoomHierarchy() http.HandlerFunc {
 				for _, x := range events {
 
 					if x.CurrentStateEvent == "m.room.create" {
-						item := gjson.Get(x.EventJson.String, "content.type")
+						item := gjson.Get(*x.EventJson, "content.type")
 						if item.String() != "" {
 							room.RoomType = item.String()
 						}
 					}
 
 					if x.CurrentStateEvent == "m.room.name" {
-						item := gjson.Get(x.EventJson.String, "content.name")
+						item := gjson.Get(*x.EventJson, "content.name")
 						if item.String() != "" {
 							room.Name = item.String()
 						}
 					}
 
 					if x.CurrentStateEvent == "m.room.canonical_alias" {
-						item := gjson.Get(x.EventJson.String, "content.alias")
+						item := gjson.Get(*x.EventJson, "content.alias")
 						if item.String() != "" {
 							room.CanonicalAlias = item.String()
 						}
 					}
 
 					if x.CurrentStateEvent == "m.room.join_rules" {
-						item := gjson.Get(x.EventJson.String, "content.join_rule")
+						item := gjson.Get(*x.EventJson, "content.join_rule")
 						if item.String() != "" {
 							room.JoinRule = item.String()
 						}
 					}
 
 					if x.CurrentStateEvent == "m.room.history_visibility" {
-						item := gjson.Get(x.EventJson.String, "content.history_visibility")
+						item := gjson.Get(*x.EventJson, "content.history_visibility")
 						if item.String() == "world_readable" {
 							room.WorldReadable = true
 						}
 					}
 
 					if x.CurrentStateEvent == "m.room.guest_access" {
-						item := gjson.Get(x.EventJson.String, "content.guest_access")
+						item := gjson.Get(*x.EventJson, "content.guest_access")
 						if item.String() == "can_join" {
 							room.GuestCanJoin = true
 						}
 					}
 
 					if x.CurrentStateEvent == "m.room.avatar" {
-						item := gjson.Get(x.EventJson.String, "content.url")
+						item := gjson.Get(*x.EventJson, "content.url")
 						if item.String() != "" {
 							room.AvatarURL = item.String()
 						}
@@ -131,27 +131,27 @@ func (c *App) RoomHierarchy() http.HandlerFunc {
 
 						cs := ChildState{}
 
-						content := gjson.Get(x.EventJson.String, "content")
+						content := gjson.Get(*x.EventJson, "content")
 						if content.String() != "" {
 							cs.Content = json.RawMessage(content.Raw)
 						}
 
-						typ := gjson.Get(x.EventJson.String, "type")
+						typ := gjson.Get(*x.EventJson, "type")
 						if typ.String() != "" {
 							cs.Type = typ.String()
 						}
 
-						state_key := gjson.Get(x.EventJson.String, "state_key")
+						state_key := gjson.Get(*x.EventJson, "state_key")
 						if state_key.String() != "" {
 							cs.StateKey = state_key.String()
 						}
 
-						sender := gjson.Get(x.EventJson.String, "sender")
+						sender := gjson.Get(*x.EventJson, "sender")
 						if sender.String() != "" {
 							cs.Sender = sender.String()
 						}
 
-						origin_server_ts := gjson.Get(x.EventJson.String, "origin_server_ts")
+						origin_server_ts := gjson.Get(*x.EventJson, "origin_server_ts")
 						if origin_server_ts.String() != "" {
 							cs.OriginServerTS = origin_server_ts.Int()
 						}
@@ -202,33 +202,32 @@ func (c *App) RoomStateEvents() http.HandlerFunc {
 		cse := []StateEvent{}
 
 		if len(events) > 0 {
-			log.Println(events)
 
 			for _, x := range events {
 
 				cs := StateEvent{}
 
-				content := gjson.Get(x.EventJson.String, "content")
+				content := gjson.Get(*x.EventJson, "content")
 				if content.String() != "" {
 					cs.Content = json.RawMessage(content.Raw)
 				}
 
-				typ := gjson.Get(x.EventJson.String, "type")
+				typ := gjson.Get(*x.EventJson, "type")
 				if typ.String() != "" {
 					cs.Type = typ.String()
 				}
 
-				state_key := gjson.Get(x.EventJson.String, "state_key")
+				state_key := gjson.Get(*x.EventJson, "state_key")
 				if state_key.String() != "" {
 					cs.StateKey = state_key.String()
 				}
 
-				sender := gjson.Get(x.EventJson.String, "sender")
+				sender := gjson.Get(*x.EventJson, "sender")
 				if sender.String() != "" {
 					cs.Sender = sender.String()
 				}
 
-				origin_server_ts := gjson.Get(x.EventJson.String, "origin_server_ts")
+				origin_server_ts := gjson.Get(*x.EventJson, "origin_server_ts")
 				if origin_server_ts.String() != "" {
 					cs.OriginServerTS = origin_server_ts.Int()
 				}
