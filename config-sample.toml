@@ -1,0 +1,12 @@
+[app]
+domain = "localhost:8989"
+port = 8989
+
+[matrix]
+homeserver = "localhost:8080"
+public_server = "localhost:8480"
+port = 8080
+db = "postgres://postgres:postgres@localhost:5432/synapse?sslmode=disable"
+
+[security]
+allowed_origins = ["http://localhost:5173", "http://localcommune.com"]
