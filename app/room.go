@@ -176,10 +176,13 @@ func (c *App) RoomHierarchy() http.HandlerFunc {
 
 type StateEvent struct {
 	Type           string          `json:"type"`
-	StateKey       string          `json:"state_key"`
-	Content        json.RawMessage `json:"content"`
 	Sender         string          `json:"sender"`
+	Content        json.RawMessage `json:"content"`
+	StateKey       string          `json:"state_key"`
 	OriginServerTS int64           `json:"origin_server_ts"`
+	Unsigned       json.RawMessage `json:"unsigned,omitempty"`
+	EventID        string          `json:"event_id"`
+	RoomID         string          `json:"room_id"`
 }
 
 func (c *App) RoomStateEvents() http.HandlerFunc {
@@ -205,7 +208,13 @@ func (c *App) RoomStateEvents() http.HandlerFunc {
 
 			for _, x := range events {
 
-				cs := StateEvent{}
+				cs := StateEvent{
+					RoomID: room_id,
+				}
+
+				if x.EventID != "" {
+					cs.EventID = x.EventID
+				}
 
 				content := gjson.Get(*x.EventJson, "content")
 				if content.String() != "" {
@@ -230,6 +239,11 @@ func (c *App) RoomStateEvents() http.HandlerFunc {
 				origin_server_ts := gjson.Get(*x.EventJson, "origin_server_ts")
 				if origin_server_ts.String() != "" {
 					cs.OriginServerTS = origin_server_ts.Int()
+				}
+
+				unsigned := gjson.Get(*x.EventJson, "unsigned")
+				if unsigned.String() != "" {
+					cs.Unsigned = json.RawMessage(unsigned.Raw)
 				}
 
 				cse = append(cse, cs)
