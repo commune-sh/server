@@ -259,3 +259,78 @@ func (c *App) RoomStateEvents() http.HandlerFunc {
 
 	}
 }
+
+func (c *App) PublicRooms() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		room_id := chi.URLParam(r, "room_id")
+
+		events, err := c.MatrixDB.Queries.GetCurrentStateEvents(context.Background(), room_id)
+
+		if err != nil {
+			RespondWithError(w, &JSONResponse{
+				Code: http.StatusInternalServerError,
+				JSON: map[string]any{
+					"error": err.Error(),
+				},
+			})
+			return
+		}
+
+		cse := []StateEvent{}
+
+		if len(events) > 0 {
+
+			for _, x := range events {
+
+				cs := StateEvent{
+					RoomID: room_id,
+				}
+
+				if x.EventID != "" {
+					cs.EventID = x.EventID
+				}
+
+				content := gjson.Get(*x.EventJson, "content")
+				if content.String() != "" {
+					cs.Content = json.RawMessage(content.Raw)
+				}
+
+				typ := gjson.Get(*x.EventJson, "type")
+				if typ.String() != "" {
+					cs.Type = typ.String()
+				}
+
+				state_key := gjson.Get(*x.EventJson, "state_key")
+				if state_key.String() != "" {
+					cs.StateKey = state_key.String()
+				}
+
+				sender := gjson.Get(*x.EventJson, "sender")
+				if sender.String() != "" {
+					cs.Sender = sender.String()
+				}
+
+				origin_server_ts := gjson.Get(*x.EventJson, "origin_server_ts")
+				if origin_server_ts.String() != "" {
+					cs.OriginServerTS = origin_server_ts.Int()
+				}
+
+				unsigned := gjson.Get(*x.EventJson, "unsigned")
+				if unsigned.String() != "" {
+					cs.Unsigned = json.RawMessage(unsigned.Raw)
+				}
+
+				cse = append(cse, cs)
+			}
+		}
+
+		RespondWithJSON(w, &JSONResponse{
+			Code: http.StatusOK,
+			JSON: map[string]any{
+				"current_state_events": cse,
+			},
+		})
+
+	}
+}
