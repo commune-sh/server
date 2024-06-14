@@ -39,14 +39,23 @@ type Cache struct {
 	EventReplies bool `toml:"event_replies"`
 }
 
+type Capabilities struct {
+	PublicRooms struct {
+		ListRooms     bool `json:"list_rooms" toml:"list_rooms"`
+		ViewHierarchy bool `json:"view_hierarchy" toml:"view_hierarchy"`
+		ReadMessages  bool `json:"read_messages" toml:"read_messages"`
+	} `toml:"public_rooms" json:"public_rooms"`
+}
+
 type Config struct {
-	Name     string   `toml:"name"`
-	Mode     string   `toml:"mode"`
-	App      App      `toml:"app"`
-	Matrix   Matrix   `toml:"matrix"`
-	Redis    Redis    `toml:"redis"`
-	Cache    Cache    `toml:"cache"`
-	Security Security `toml:"security"`
+	Name         string       `toml:"name"`
+	Mode         string       `toml:"mode"`
+	App          App          `toml:"app"`
+	Matrix       Matrix       `toml:"matrix"`
+	Redis        Redis        `toml:"redis"`
+	Cache        Cache        `toml:"cache"`
+	Security     Security     `toml:"security"`
+	Capabilities Capabilities `toml:"capabilities"`
 }
 
 var conf Config

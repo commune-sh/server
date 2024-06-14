@@ -10,3 +10,8 @@ db = "postgres://postgres:postgres@localhost:5432/synapse?sslmode=disable"
 
 [security]
 allowed_origins = ["http://localhost:5173", "http://localcommune.com"]
+
+[capabilities.public_rooms]
+list_rooms = true
+view_hierarchy = true
+read_messages = true
