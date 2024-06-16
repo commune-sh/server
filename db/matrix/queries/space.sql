@@ -61,12 +61,23 @@ WITH RECURSIVE room_hierarchy AS (
     ON c.room_id = rh.room_id
     WHERE c.type = 'm.space.child'
 )
-SELECT * FROM room_hierarchy;
+SELECT r.room_id
+FROM room_hierarchy rh
+JOIN rooms r 
+ON r.room_id = rh.room_id AND r.is_public is TRUE
+JOIN current_state_events cse 
+ON cse.room_id = r.room_id AND cse.type = 'commune.room.public';
 
 -- name: GetCurrentStateEvents :many
-SELECT cse.type current_state_event, 
+SELECT cse.type as current_state_event, 
     ej.json as event_json, cse.event_id
 FROM current_state_events cse
 JOIN event_json ej 
 ON ej.event_id = cse.event_id
-WHERE cse.room_id = $1;
+LEFT JOIN current_state_events cs
+ON cs.type = 'commune.room.public' AND cs.room_id = cse.state_key
+WHERE cse.room_id = $1
+AND 
+CASE WHEN cse.type = 'm.space.child' THEN cs.type = 'commune.room.public' 
+    ELSE cs.type IS NULL
+END;
