@@ -56,6 +56,7 @@ func routes(c *App) chi.Router {
 
 	r.Route("/rooms/{room_id}", func(r chi.Router) {
 		r.Use(c.ValidateRoom)
+		r.Get("/public", c.IsRoomPublic())
 		r.Get("/hierarchy", c.RoomHierarchy())
 		r.Get("/state_events", c.RoomStateEvents())
 	})

@@ -334,3 +334,31 @@ func (c *App) PublicRooms() http.HandlerFunc {
 
 	}
 }
+
+func (c *App) IsRoomPublic() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		room_id := chi.URLParam(r, "room_id")
+
+		is_public, err := c.MatrixDB.Queries.IsRoomPubliclyAccessible(context.Background(), room_id)
+
+		if err != nil {
+			RespondWithError(w, &JSONResponse{
+				Code: http.StatusInternalServerError,
+				JSON: map[string]any{
+					"errorcode": "M_NOT_FOUND",
+					"error":     err.Error(),
+				},
+			})
+			return
+		}
+
+		RespondWithJSON(w, &JSONResponse{
+			Code: http.StatusOK,
+			JSON: map[string]any{
+				"public": is_public,
+			},
+		})
+
+	}
+}
