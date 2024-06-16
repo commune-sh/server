@@ -271,9 +271,7 @@ func (c *App) PublicRooms() http.HandlerFunc {
 
 		RespondWithJSON(w, &JSONResponse{
 			Code: http.StatusOK,
-			JSON: map[string]any{
-				"rooms": rooms,
-			},
+			JSON: rooms,
 		})
 
 	}
