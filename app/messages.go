@@ -25,7 +25,9 @@ type Event struct {
 func (c *App) RoomMessages() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		var limit int64 = 50
+		room_id := chi.URLParam(r, "room_id")
+
+		var limit int64 = 10
 
 		l := r.URL.Query().Get("limit")
 		lp, _ := strconv.ParseInt(l, 10, 64)
@@ -33,20 +35,28 @@ func (c *App) RoomMessages() http.HandlerFunc {
 			limit = lp
 		}
 
-		dir := r.URL.Query().Get("dir")
-		//from := r.URL.Query().Get("from")
-
-		room_id := chi.URLParam(r, "room_id")
-
 		rmp := matrix_db.GetRoomMessagesParams{
 			RoomID: room_id,
 			Limit:  &limit,
 		}
 
+		dir := r.URL.Query().Get("dir")
 		if dir == "b" {
 			rmp.OrderBy = "DESC"
 		} else if dir == "f" {
 			rmp.OrderBy = "ASC"
+		}
+
+		from := r.URL.Query().Get("from")
+		if from != "" {
+			f, _ := strconv.ParseInt(from, 10, 64)
+			rmp.From = &f
+		}
+
+		to := r.URL.Query().Get("to")
+		if to != "" {
+			t, _ := strconv.ParseInt(from, 10, 64)
+			rmp.To = &t
 		}
 
 		messages, err := c.MatrixDB.Queries.GetRoomMessages(context.Background(), rmp)

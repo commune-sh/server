@@ -1,0 +1,13 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    container_name: commune
+    ports:
+      - "8989:8989"
+    volumes:
+      - ./config.toml:/app/config.toml
+    environment:
+      - API_ENV=development
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"

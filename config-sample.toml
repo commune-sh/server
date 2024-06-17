@@ -5,7 +5,7 @@ port = 8989
 [matrix]
 homeserver = "localhost:8080"
 server_name = "localhost:8480"
-db = "postgres://postgres:postgres@localhost:5432/synapse?sslmode=disable"
+db = "postgres://postgres:postgres@host.docker.internal:5432/synapse?sslmode=disable"
 
 [security]
 allowed_origins = ["http://localhost:5173", "http://localcommune.com"]
