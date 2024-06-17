@@ -5,11 +5,9 @@ vendor: clean vendorbuild
 vendorbuild:
 	go build -mod=vendor -o bin/commune cmd/commune/main.go
 clean: 
-	rm -f bin/commune
-modd:
-	-modd
+	rm -f bin/commune;
 sqlc:
-	-cd db/matrix;sqlc generate;
+	-sqlc generate -f db/matrix/sqlc.yaml;
 deps:
 	-go install github.com/sqlc-dev/sqlc/cmd/sqlc@latest;
 	-go install github.com/cortesi/modd/cmd/modd@latest;

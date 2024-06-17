@@ -61,6 +61,7 @@ func routes(c *App) chi.Router {
 			r.Use(c.ValidateRoom)
 			r.Get("/hierarchy", c.RoomHierarchy())
 			r.Get("/state_events", c.RoomStateEvents())
+			r.Get("/messages", c.RoomMessages())
 		})
 	})
 
