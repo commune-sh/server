@@ -4,8 +4,7 @@ port = 8989
 
 [matrix]
 homeserver = "localhost:8080"
-public_server = "localhost:8480"
-port = 8080
+server_name = "localhost:8480"
 db = "postgres://postgres:postgres@localhost:5432/synapse?sslmode=disable"
 
 [security]

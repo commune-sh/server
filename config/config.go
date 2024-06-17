@@ -15,7 +15,6 @@ type App struct {
 type Matrix struct {
 	Homeserver string `toml:"homeserver"`
 	ServerName string `toml:"server_name"`
-	Port       int    `toml:"port"`
 	DB         string `toml:"db"`
 }
 

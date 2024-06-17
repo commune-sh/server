@@ -33,6 +33,15 @@ func IsValidRoomID(room_id string) bool {
 	return match
 }
 
+func SimpleAliasCheck(input string) bool {
+	reg := `[!:.]`
+	match, err := regexp.MatchString(reg, input)
+	if err != nil {
+		return false
+	}
+	return match
+}
+
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	return string(bytes), err
