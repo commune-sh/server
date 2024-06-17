@@ -24,6 +24,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+func IsValidRoomID(room_id string) bool {
+	reg := `^(?:!)[\w-]+:(?:[\w.-]+|\[[\w:]+\])(?::\d+)?$`
+	match, err := regexp.MatchString(reg, room_id)
+	if err != nil {
+		return false
+	}
+	return match
+}
+
 func HashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 12)
 	return string(bytes), err
@@ -169,14 +178,6 @@ func FileID(fileID string) string {
 	fi := strings.Replace(fileID, "mxc://", "", 1)
 	sp := strings.Split(fi, "/")
 	return sp[1]
-}
-
-func (c *App) URLScheme(url string) string {
-	if c.Config.Matrix.Homeserver != url &&
-		c.Config.Matrix.FederationServer != url {
-		return fmt.Sprintf(`https://%s`, url)
-	}
-	return fmt.Sprintf(`http://%s`, url)
 }
 
 func UnsafeHTML(x string) (template.HTML, error) {

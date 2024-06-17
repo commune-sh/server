@@ -58,7 +58,7 @@ func routes(c *App) chi.Router {
 		r.Use(c.EnsureRoomExists)
 		r.Get("/public", c.IsRoomPublic())
 		r.Route("/", func(r chi.Router) {
-			r.Use(c.ValidateRoom)
+			r.Use(c.ValidateRoomIsPublic)
 			r.Get("/hierarchy", c.RoomHierarchy())
 			r.Get("/state_events", c.RoomStateEvents())
 			r.Get("/messages", c.RoomMessages())
@@ -88,7 +88,8 @@ func (c *App) NotFound(w http.ResponseWriter, r *http.Request) {
 	RespondWithError(w, &JSONResponse{
 		Code: http.StatusNotFound,
 		JSON: map[string]any{
-			"message": "resource not found",
+			"errcode": "M_UNRECOGNIZED",
+			"message": "Unrecognized request",
 		},
 	})
 }

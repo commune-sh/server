@@ -2,6 +2,8 @@ package app
 
 import (
 	"context"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -18,11 +20,21 @@ func (c *App) EnsureRoomExists(h http.Handler) http.Handler {
 			RespondWithError(w, &JSONResponse{
 				Code: http.StatusOK,
 				JSON: map[string]any{
-					"error": "room_id is required",
+					"error": "room ID is required",
 				},
 			})
 			return
 		}
+
+		is_room_id := IsValidRoomID(room_id)
+
+		if !is_room_id {
+			room_id = fmt.Sprintf("!%s:%s", room_id, c.Config.Matrix.ServerName)
+			rctx := chi.RouteContext(r.Context())
+			rctx.URLParams.Add("room_id", room_id)
+		}
+
+		log.Println("room_id:", room_id)
 
 		// does room exist?
 		exists, err := c.MatrixDB.Queries.DoesRoomExist(context.Background(), room_id)
@@ -52,8 +64,8 @@ func (c *App) EnsureRoomExists(h http.Handler) http.Handler {
 	})
 }
 
-// validate if room exists and is public
-func (c *App) ValidateRoom(h http.Handler) http.Handler {
+// validate room is public
+func (c *App) ValidateRoomIsPublic(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		room_id := chi.URLParam(r, "room_id")
