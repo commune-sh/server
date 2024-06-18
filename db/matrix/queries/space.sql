@@ -91,6 +91,7 @@ ON ej.event_id = cse.event_id
 LEFT JOIN current_state_events cs
 ON cs.type = 'commune.room.public' AND cs.room_id = cse.state_key
 WHERE cse.room_id = $1
+AND cse.type != 'm.room.member'
 AND 
 CASE WHEN cse.type = 'm.space.child' THEN cs.type = 'commune.room.public' 
     ELSE cs.type IS NULL
