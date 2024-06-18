@@ -47,10 +47,42 @@ func (c *App) RoomHierarchy() http.HandlerFunc {
 		rooms := []RoomHierarchyItem{}
 
 		if len(h) > 0 {
-			for _, id := range h {
+			for _, state := range h {
 
 				room := RoomHierarchyItem{
-					RoomID: id,
+					RoomID: state.RoomID,
+				}
+
+				if state.RoomType != nil {
+					room.RoomType = *state.RoomType
+				}
+
+				if state.Name != nil {
+					room.Name = *state.Name
+				}
+
+				if state.Topic != nil {
+					room.Topic = *state.Topic
+				}
+
+				if state.CanonicalAlias != nil {
+					room.CanonicalAlias = *state.CanonicalAlias
+				}
+
+				if state.JoinRules != nil {
+					room.JoinRule = *state.JoinRules
+				}
+
+				if state.HistoryVisibility != nil && *state.HistoryVisibility == "world_readable" {
+					room.WorldReadable = true
+				}
+
+				if state.GuestAccess != nil && *state.GuestAccess == "can_join" {
+					room.GuestCanJoin = true
+				}
+
+				if state.Avatar != nil {
+					room.AvatarURL = *state.Avatar
 				}
 
 				joined, err := c.MatrixDB.Queries.GetRoomJoinedMembers(context.Background(), room_id)
@@ -62,108 +94,55 @@ func (c *App) RoomHierarchy() http.HandlerFunc {
 					room.NumJoinedMembers = joined
 				}
 
-				// get current state events
-				events, err := c.MatrixDB.Queries.GetCurrentStateEvents(context.Background(), id)
-				if err != nil {
-					continue
-				}
+				if state.IsParent {
 
-				for _, x := range events {
-
-					if x.CurrentStateEvent == "m.room.create" {
-						item := gjson.Get(x.EventJson, "content.type")
-						if item.String() != "" {
-							room.RoomType = item.String()
-						}
+					// get current state events
+					events, err := c.MatrixDB.Queries.GetSpaceChildStateEvents(context.Background(), state.RoomID)
+					if err != nil {
+						continue
 					}
 
-					if x.CurrentStateEvent == "m.room.name" {
-						item := gjson.Get(x.EventJson, "content.name")
-						if item.String() != "" {
-							room.Name = item.String()
+					for _, x := range events {
+
+						if x.CurrentStateEvent == "m.space.child" {
+
+							type ChildState struct {
+								Type           string          `json:"type"`
+								StateKey       string          `json:"state_key"`
+								Content        json.RawMessage `json:"content"`
+								Sender         string          `json:"sender"`
+								OriginServerTS int64           `json:"origin_server_ts"`
+							}
+
+							cs := ChildState{}
+
+							content := gjson.Get(x.EventJson, "content")
+							if content.String() != "" {
+								cs.Content = json.RawMessage(content.Raw)
+							}
+
+							typ := gjson.Get(x.EventJson, "type")
+							if typ.String() != "" {
+								cs.Type = typ.String()
+							}
+
+							state_key := gjson.Get(x.EventJson, "state_key")
+							if state_key.String() != "" {
+								cs.StateKey = state_key.String()
+							}
+
+							sender := gjson.Get(x.EventJson, "sender")
+							if sender.String() != "" {
+								cs.Sender = sender.String()
+							}
+
+							origin_server_ts := gjson.Get(x.EventJson, "origin_server_ts")
+							if origin_server_ts.String() != "" {
+								cs.OriginServerTS = origin_server_ts.Int()
+							}
+
+							room.ChildrenState = append(room.ChildrenState, cs)
 						}
-					}
-
-					if x.CurrentStateEvent == "m.room.topic" {
-						item := gjson.Get(x.EventJson, "content.topic")
-						if item.String() != "" {
-							room.Topic = item.String()
-						}
-					}
-
-					if x.CurrentStateEvent == "m.room.canonical_alias" {
-						item := gjson.Get(x.EventJson, "content.alias")
-						if item.String() != "" {
-							room.CanonicalAlias = item.String()
-						}
-					}
-
-					if x.CurrentStateEvent == "m.room.join_rules" {
-						item := gjson.Get(x.EventJson, "content.join_rule")
-						if item.String() != "" {
-							room.JoinRule = item.String()
-						}
-					}
-
-					if x.CurrentStateEvent == "m.room.history_visibility" {
-						item := gjson.Get(x.EventJson, "content.history_visibility")
-						if item.String() == "world_readable" {
-							room.WorldReadable = true
-						}
-					}
-
-					if x.CurrentStateEvent == "m.room.guest_access" {
-						item := gjson.Get(x.EventJson, "content.guest_access")
-						if item.String() == "can_join" {
-							room.GuestCanJoin = true
-						}
-					}
-
-					if x.CurrentStateEvent == "m.room.avatar" {
-						item := gjson.Get(x.EventJson, "content.url")
-						if item.String() != "" {
-							room.AvatarURL = item.String()
-						}
-					}
-
-					if x.CurrentStateEvent == "m.space.child" {
-
-						type ChildState struct {
-							Type           string          `json:"type"`
-							StateKey       string          `json:"state_key"`
-							Content        json.RawMessage `json:"content"`
-							Sender         string          `json:"sender"`
-							OriginServerTS int64           `json:"origin_server_ts"`
-						}
-
-						cs := ChildState{}
-
-						content := gjson.Get(x.EventJson, "content")
-						if content.String() != "" {
-							cs.Content = json.RawMessage(content.Raw)
-						}
-
-						typ := gjson.Get(x.EventJson, "type")
-						if typ.String() != "" {
-							cs.Type = typ.String()
-						}
-
-						state_key := gjson.Get(x.EventJson, "state_key")
-						if state_key.String() != "" {
-							cs.StateKey = state_key.String()
-						}
-
-						sender := gjson.Get(x.EventJson, "sender")
-						if sender.String() != "" {
-							cs.Sender = sender.String()
-						}
-
-						origin_server_ts := gjson.Get(x.EventJson, "origin_server_ts")
-						if origin_server_ts.String() != "" {
-							cs.OriginServerTS = origin_server_ts.Int()
-						}
-
-						room.ChildrenState = append(room.ChildrenState, cs)
 					}
 				}
 

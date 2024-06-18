@@ -63,8 +63,10 @@ WITH RECURSIVE room_hierarchy AS (
     ON c.room_id = rh.room_id
     WHERE c.type = 'm.space.child'
 )
-SELECT r.room_id
+SELECT cs.is_parent, rss.*
 FROM room_hierarchy rh
+JOIN room_stats_state rss 
+ON rss.room_id = rh.room_id
 JOIN rooms r 
 ON r.room_id = rh.room_id 
 JOIN current_state_events cse 
@@ -73,6 +75,11 @@ JOIN state_events sev
 ON sev.room_id = r.room_id AND sev.type = 'm.room.create'
 JOIN events ev 
 ON ev.event_id = sev.event_id
+LEFT JOIN LATERAL (
+	SELECT EXISTS (SELECT DISTINCT c.type 
+	FROM current_state_events c
+	WHERE c.room_id = rh.room_id AND c.type = 'm.space.child') as is_parent
+) cs ON TRUE
 ORDER BY ev.origin_server_ts ASC;
 
 -- name: GetCurrentStateEvents :many
@@ -84,6 +91,21 @@ ON ej.event_id = cse.event_id
 LEFT JOIN current_state_events cs
 ON cs.type = 'commune.room.public' AND cs.room_id = cse.state_key
 WHERE cse.room_id = $1
+AND 
+CASE WHEN cse.type = 'm.space.child' THEN cs.type = 'commune.room.public' 
+    ELSE cs.type IS NULL
+END;
+
+-- name: GetSpaceChildStateEvents :many
+SELECT cse.type as current_state_event, 
+    ej.json as event_json, cse.event_id
+FROM current_state_events cse
+JOIN event_json ej 
+ON ej.event_id = cse.event_id
+LEFT JOIN current_state_events cs
+ON cs.type = 'commune.room.public' AND cs.room_id = cse.state_key
+WHERE cse.room_id = $1
+AND cse.type = 'm.space.child'
 AND 
 CASE WHEN cse.type = 'm.space.child' THEN cs.type = 'commune.room.public' 
     ELSE cs.type IS NULL
