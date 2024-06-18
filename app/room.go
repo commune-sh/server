@@ -84,6 +84,13 @@ func (c *App) RoomHierarchy() http.HandlerFunc {
 						}
 					}
 
+					if x.CurrentStateEvent == "m.room.topic" {
+						item := gjson.Get(x.EventJson, "content.topic")
+						if item.String() != "" {
+							room.Topic = item.String()
+						}
+					}
+
 					if x.CurrentStateEvent == "m.room.canonical_alias" {
 						item := gjson.Get(x.EventJson, "content.alias")
 						if item.String() != "" {
@@ -225,6 +232,13 @@ func (c *App) PublicRooms() http.HandlerFunc {
 						item := gjson.Get(x.EventJson, "content.name")
 						if item.String() != "" {
 							room.Name = item.String()
+						}
+					}
+
+					if x.CurrentStateEvent == "m.room.topic" {
+						item := gjson.Get(x.EventJson, "content.topic")
+						if item.String() != "" {
+							room.Topic = item.String()
 						}
 					}
 

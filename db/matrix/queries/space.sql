@@ -66,9 +66,14 @@ WITH RECURSIVE room_hierarchy AS (
 SELECT r.room_id
 FROM room_hierarchy rh
 JOIN rooms r 
-ON r.room_id = rh.room_id AND r.is_public is TRUE
+ON r.room_id = rh.room_id 
 JOIN current_state_events cse 
-ON cse.room_id = r.room_id AND cse.type = 'commune.room.public';
+ON cse.room_id = r.room_id AND cse.type = 'commune.room.public'
+JOIN state_events sev 
+ON sev.room_id = r.room_id AND sev.type = 'm.room.create'
+JOIN events ev 
+ON ev.event_id = sev.event_id
+ORDER BY ev.origin_server_ts ASC;
 
 -- name: GetCurrentStateEvents :many
 SELECT cse.type as current_state_event, 
