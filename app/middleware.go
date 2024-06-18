@@ -80,7 +80,8 @@ func (c *App) ValidateRoomIsPublic(h http.Handler) http.Handler {
 		room_id := chi.URLParam(r, "room_id")
 
 		// is room public?
-		is_public, err := c.MatrixDB.Queries.IsRoomPublic(context.Background(), room_id)
+		//is_public, err := c.MatrixDB.Queries.IsRoomPublic(context.Background(), room_id)
+		is_public, err := c.MatrixDB.Queries.IsRoomPubliclyAccessible(context.Background(), room_id)
 
 		if err != nil {
 			RespondWithError(w, &JSONResponse{
