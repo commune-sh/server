@@ -93,6 +93,10 @@ func (c *App) ValidateRoomIsPublic(h http.Handler) http.Handler {
 			return
 		}
 
+		c.Log.Debug().
+			Bool("Public", is_public).
+			Msg("Is room public?")
+
 		// not public?
 		if !is_public {
 			RespondWithJSON(w, &JSONResponse{

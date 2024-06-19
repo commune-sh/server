@@ -14,10 +14,14 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/robfig/cron/v3"
+
+	"github.com/rs/zerolog"
 )
 
 func init() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+
 }
 
 type App struct {
@@ -27,10 +31,11 @@ type App struct {
 	MatrixDB *MatrixDB
 	Cron     *cron.Cron
 	Cache    *Cache
+	Log      *zerolog.Logger
 }
 
 func (c *App) Activate() {
-	log.Println("Started App.")
+	c.Log.Info().Msg("Started Commune server")
 
 	idleConnsClosed := make(chan struct{})
 
@@ -100,6 +105,8 @@ func Start(s *StartRequest) {
 		Handler:     router,
 	}
 
+	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
+
 	c := &App{
 		MatrixDB: mdb,
 		Config:   conf,
@@ -107,6 +114,7 @@ func Start(s *StartRequest) {
 		Router:   router,
 		Cron:     cron,
 		Cache:    cache,
+		Log:      &logger,
 	}
 
 	c.Routes()
