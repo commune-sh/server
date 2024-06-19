@@ -271,9 +271,16 @@ func (c *App) PublicRooms() http.HandlerFunc {
 			}
 		}
 
+		total, _ := c.MatrixDB.Queries.GetPublicSpacesCount(context.Background())
+
+		resp := map[string]any{
+			"chunk":                     rooms,
+			"total_room_count_estimate": total,
+		}
+
 		RespondWithJSON(w, &JSONResponse{
 			Code: http.StatusOK,
-			JSON: rooms,
+			JSON: resp,
 		})
 
 	}
