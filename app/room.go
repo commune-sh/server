@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/tidwall/gjson"
@@ -163,7 +164,15 @@ func (c *App) RoomHierarchy() http.HandlerFunc {
 func (c *App) PublicRooms() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		spaces, err := c.MatrixDB.Queries.GetPublicSpaces(context.Background())
+		var limit int64 = 10
+
+		l := r.URL.Query().Get("limit")
+		lp, _ := strconv.ParseInt(l, 10, 64)
+		if lp > 0 {
+			limit = lp
+		}
+
+		spaces, err := c.MatrixDB.Queries.GetPublicSpaces(context.Background(), &limit)
 		if err != nil {
 			RespondWithError(w, &JSONResponse{
 				Code: http.StatusInternalServerError,

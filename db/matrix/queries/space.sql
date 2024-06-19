@@ -34,7 +34,8 @@ AND cs.type = 'm.room.history_visibility'
 AND ej.json::jsonb->'content'->>'history_visibility' = 'world_readable'
 AND csp.type = 'commune.room.public'
 AND ejj.json::jsonb->'content'->>'public' = 'true'
-ORDER BY r.room_id, rsc.joined_members ASC;
+ORDER BY r.room_id, rsc.joined_members ASC
+LIMIT sqlc.narg('limit')::bigint;
 
 -- name: GetSpaceChildren :many
 SELECT cse.state_key as room_id
