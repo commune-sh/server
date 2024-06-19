@@ -13,7 +13,6 @@ SELECT EXISTS (
 	WHERE r.room_id = $1
 	AND rss.join_rules = 'public'
 	AND rss.history_visibility = 'world_readable'
-	AND rss.guest_access = 'can_join'
 	AND r.room_id IN (
 		SELECT room_id
 		FROM current_state_events 

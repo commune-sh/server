@@ -65,6 +65,12 @@ func routes(c *App) chi.Router {
 		})
 	})
 
+	r.Route("/search", func(r chi.Router) {
+		r.Route("/", func(r chi.Router) {
+			r.Post("/", c.SearchRoom())
+		})
+	})
+
 	r.Route("/publicRooms", func(r chi.Router) {
 		r.Get("/", c.PublicRooms())
 	})

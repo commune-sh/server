@@ -69,6 +69,15 @@ func RespondWithError(w http.ResponseWriter, res *JSONResponse) {
 	w.Write(response)
 }
 
+func RespondWithBadRequestError(w http.ResponseWriter) {
+	RespondWithJSON(w, &JSONResponse{
+		Code: http.StatusOK,
+		JSON: map[string]any{
+			"error": "bad request",
+		},
+	})
+}
+
 func (c *App) RobotsTXT() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
