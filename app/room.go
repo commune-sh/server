@@ -3,7 +3,6 @@ package app
 import (
 	"context"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -86,13 +85,8 @@ func (c *App) RoomHierarchy() http.HandlerFunc {
 					room.AvatarURL = *state.Avatar
 				}
 
-				joined, err := c.MatrixDB.Queries.GetRoomJoinedMembers(context.Background(), room_id)
-				if err != nil {
-					log.Println(err)
-				}
-
-				if joined > 0 {
-					room.NumJoinedMembers = joined
+				if state.JoinedMembers > 0 {
+					room.NumJoinedMembers = state.JoinedMembers
 				}
 
 				if state.IsParent {
@@ -186,85 +180,46 @@ func (c *App) PublicRooms() http.HandlerFunc {
 		rooms := []RoomHierarchyItem{}
 
 		if len(spaces) > 0 {
-			for _, id := range spaces {
+			for _, state := range spaces {
 
 				room := RoomHierarchyItem{
-					RoomID: id,
+					RoomID: state.RoomID,
 				}
 
-				joined, err := c.MatrixDB.Queries.GetRoomJoinedMembers(context.Background(), id)
-				if err != nil {
-					log.Println(err)
+				if state.JoinedMembers > 0 {
+					room.NumJoinedMembers = state.JoinedMembers
 				}
 
-				if joined > 0 {
-					room.NumJoinedMembers = joined
+				if state.RoomType != nil {
+					room.RoomType = *state.RoomType
 				}
 
-				// get current state events
-				events, err := c.MatrixDB.Queries.GetCurrentStateEvents(context.Background(), id)
-				if err != nil {
-					continue
+				if state.Name != nil {
+					room.Name = *state.Name
 				}
 
-				for _, x := range events {
+				if state.Topic != nil {
+					room.Topic = *state.Topic
+				}
 
-					if x.CurrentStateEvent == "m.room.create" {
-						item := gjson.Get(x.EventJson, "content.type")
-						if item.String() != "" {
-							room.RoomType = item.String()
-						}
-					}
+				if state.CanonicalAlias != nil {
+					room.CanonicalAlias = *state.CanonicalAlias
+				}
 
-					if x.CurrentStateEvent == "m.room.name" {
-						item := gjson.Get(x.EventJson, "content.name")
-						if item.String() != "" {
-							room.Name = item.String()
-						}
-					}
+				if state.JoinRules != nil {
+					room.JoinRule = *state.JoinRules
+				}
 
-					if x.CurrentStateEvent == "m.room.topic" {
-						item := gjson.Get(x.EventJson, "content.topic")
-						if item.String() != "" {
-							room.Topic = item.String()
-						}
-					}
+				if state.HistoryVisibility != nil && *state.HistoryVisibility == "world_readable" {
+					room.WorldReadable = true
+				}
 
-					if x.CurrentStateEvent == "m.room.canonical_alias" {
-						item := gjson.Get(x.EventJson, "content.alias")
-						if item.String() != "" {
-							room.CanonicalAlias = item.String()
-						}
-					}
+				if state.GuestAccess != nil && *state.GuestAccess == "can_join" {
+					room.GuestCanJoin = true
+				}
 
-					if x.CurrentStateEvent == "m.room.join_rules" {
-						item := gjson.Get(x.EventJson, "content.join_rule")
-						if item.String() != "" {
-							room.JoinRule = item.String()
-						}
-					}
-
-					if x.CurrentStateEvent == "m.room.history_visibility" {
-						item := gjson.Get(x.EventJson, "content.history_visibility")
-						if item.String() == "world_readable" {
-							room.WorldReadable = true
-						}
-					}
-
-					if x.CurrentStateEvent == "m.room.guest_access" {
-						item := gjson.Get(x.EventJson, "content.guest_access")
-						if item.String() == "can_join" {
-							room.GuestCanJoin = true
-						}
-					}
-
-					if x.CurrentStateEvent == "m.room.avatar" {
-						item := gjson.Get(x.EventJson, "content.url")
-						if item.String() != "" {
-							room.AvatarURL = item.String()
-						}
-					}
-
+				if state.Avatar != nil {
+					room.AvatarURL = *state.Avatar
 				}
 
 				rooms = append(rooms, room)

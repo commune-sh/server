@@ -1,59 +1,36 @@
 package config
 
 import (
-	"io/ioutil"
+	"io"
 	"os"
 
 	"github.com/BurntSushi/toml"
 )
 
-type App struct {
-	Domain string `toml:"domain"`
-	Port   int    `toml:"port"`
-}
-
-type Matrix struct {
-	Homeserver string `toml:"homeserver"`
-	ServerName string `toml:"server_name"`
-	DB         string `toml:"db"`
-}
-
-type Security struct {
-	AllowedOrigins []string `toml:"allowed_origins"`
-}
-
-type Redis struct {
-	Address         string `toml:"address"`
-	Password        string `toml:"password"`
-	SessionsDB      int    `toml:"sessions_db"`
-	PostsDB         int    `toml:"posts_db"`
-	SystemDB        int    `toml:"system_db"`
-	NotificationsDB int    `toml:"notifications_db"`
-}
-
-type Cache struct {
-	IndexEvents  bool `toml:"index_events"`
-	SpaceEvents  bool `toml:"space_events"`
-	EventReplies bool `toml:"event_replies"`
-}
-
-type Capabilities struct {
-	PublicRooms struct {
-		ListRooms     bool `json:"list_rooms" toml:"list_rooms"`
-		ViewHierarchy bool `json:"view_hierarchy" toml:"view_hierarchy"`
-		ReadMessages  bool `json:"read_messages" toml:"read_messages"`
-	} `toml:"public_rooms" json:"public_rooms"`
-}
-
 type Config struct {
-	Name         string       `toml:"name"`
-	Mode         string       `toml:"mode"`
-	App          App          `toml:"app"`
-	Matrix       Matrix       `toml:"matrix"`
-	Redis        Redis        `toml:"redis"`
-	Cache        Cache        `toml:"cache"`
-	Security     Security     `toml:"security"`
-	Capabilities Capabilities `toml:"capabilities"`
+	Mode string `toml:"mode" json:"mode"`
+	App  struct {
+		Domain string `toml:"domain" json:"domain"`
+		Port   int    `toml:"port" json:"port"`
+	} `toml:"app" json:"app"`
+	Matrix struct {
+		Homeserver string `toml:"homeserver" json:"homeserver"`
+		ServerName string `toml:"server_name" json:"server_name"`
+		DB         string `toml:"db" json:"db"`
+	} `json:"matrix"`
+	Cache struct {
+		PublicRooms bool `json:"public_rooms"`
+	} `json:"cache"`
+	Security struct {
+		AllowedOrigins []string `toml:"allowed_origins" json:"allowed_origins"`
+	} `json:"security"`
+	Capabilities struct {
+		PublicRooms struct {
+			ListRooms     bool `json:"list_rooms" toml:"list_rooms"`
+			ViewHierarchy bool `json:"view_hierarchy" toml:"view_hierarchy"`
+			ReadMessages  bool `json:"read_messages" toml:"read_messages"`
+		} `toml:"public_rooms" json:"public_rooms"`
+	} `json:"capabilities"`
 }
 
 var conf Config
@@ -66,7 +43,7 @@ func Read(s string) (*Config, error) {
 	}
 	defer file.Close()
 
-	b, err := ioutil.ReadAll(file)
+	b, err := io.ReadAll(file)
 	if err != nil {
 		panic(err)
 	}

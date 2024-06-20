@@ -15,8 +15,10 @@ AND cs.type = 'm.room.history_visibility'
 AND ej.json::jsonb->'content'->>'history_visibility' = 'world_readable';
 
 -- name: GetPublicSpaces :many
-SELECT DISTINCT ON (r.room_id) r.room_id
+SELECT DISTINCT ON (r.room_id) rss.*, rsc.joined_members
 FROM rooms r
+JOIN room_stats_state rss 
+ON rss.room_id = r.room_id
 JOIN current_state_events cse ON r.room_id = cse.room_id
 JOIN current_state_events cs ON r.room_id = cs.room_id
 LEFT JOIN event_json ej ON ej.event_id = cs.event_id
@@ -86,12 +88,13 @@ WITH RECURSIVE room_hierarchy AS (
     ON c.room_id = rh.room_id
     WHERE c.type = 'm.space.child'
 )
-SELECT cs.is_parent, rss.*
+SELECT cs.is_parent, rss.*, rsc.joined_members
 FROM room_hierarchy rh
 JOIN room_stats_state rss 
 ON rss.room_id = rh.room_id
 JOIN rooms r 
 ON r.room_id = rh.room_id 
+JOIN room_stats_current rsc ON rsc.room_id = r.room_id
 JOIN current_state_events cse 
 ON cse.room_id = r.room_id AND cse.type = 'commune.room.public'
 JOIN state_events sev 
