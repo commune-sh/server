@@ -327,6 +327,31 @@ func (c *App) RoomStateEvents() http.HandlerFunc {
 	}
 }
 
+func (c *App) RoomState() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		room_id := chi.URLParam(r, "room_id")
+
+		state, err := c.MatrixDB.Queries.GetRoomState(context.Background(), room_id)
+
+		if err != nil {
+			RespondWithError(w, &JSONResponse{
+				Code: http.StatusOK,
+				JSON: map[string]any{
+					"error": err.Error(),
+				},
+			})
+			return
+		}
+
+		RespondWithJSON(w, &JSONResponse{
+			Code: http.StatusOK,
+			JSON: json.RawMessage(state),
+		})
+
+	}
+}
+
 func (c *App) IsRoomPublic() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 

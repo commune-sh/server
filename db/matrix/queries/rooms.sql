@@ -57,4 +57,45 @@ FROM room_stats_current
 WHERE room_id = $1;
 
 
+-- name: GetCurrentStateEvents :many
+SELECT cse.type as current_state_event, 
+    ej.json as event_json, cse.event_id
+FROM current_state_events cse
+JOIN event_json ej 
+ON ej.event_id = cse.event_id
+LEFT JOIN current_state_events cs
+ON cs.type = 'commune.room.public' AND cs.room_id = cse.state_key
+WHERE cse.room_id = $1
+AND cse.type != 'm.room.member'
+AND 
+CASE WHEN cse.type = 'm.space.child' THEN cs.type = 'commune.room.public' 
+    ELSE cs.type IS NULL
+END;
+
+-- name: GetRoomState :one
+SELECT json_build_object(
+		'room_id', rss.room_id,
+		'name', rss.name,
+        'canonical_alias', rss.canonical_alias,
+		'topic', rss.topic, 
+		'avatar_url', rss.avatar,
+		'join_rule', rss.join_rules,
+        'room_type', rss.room_type,
+        'guest_can_join', CASE WHEN rss.guest_access = 'can_join' THEN true ELSE false END,
+		'world_readable', CASE WHEN rss.history_visibility = 'world_readable' THEN true ELSE false END,
+		'num_joined_members', rsc.joined_members
+	) as state
+FROM room_stats_state rss
+JOIN room_stats_current rsc 
+ON rss.room_id = rsc.room_id
+WHERE rss.room_id = $1
+AND rss.join_rules = 'public'
+AND rss.history_visibility = 'world_readable'
+AND rss.guest_access = 'can_join'
+AND rss.room_id IN (
+	SELECT room_id
+	FROM current_state_events 
+	WHERE room_id = $1
+	AND type = 'commune.room.public'
+);
 
