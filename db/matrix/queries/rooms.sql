@@ -57,21 +57,6 @@ FROM room_stats_current
 WHERE room_id = $1;
 
 
--- name: GetCurrentStateEvents :many
-SELECT cse.type as current_state_event, 
-    ej.json as event_json, cse.event_id
-FROM current_state_events cse
-JOIN event_json ej 
-ON ej.event_id = cse.event_id
-LEFT JOIN current_state_events cs
-ON cs.type = 'commune.room.public' AND cs.room_id = cse.state_key
-WHERE cse.room_id = $1
-AND cse.type != 'm.room.member'
-AND 
-CASE WHEN cse.type = 'm.space.child' THEN cs.type = 'commune.room.public' 
-    ELSE cs.type IS NULL
-END;
-
 -- name: GetRoomState :one
 SELECT json_build_object(
 		'room_id', rss.room_id,

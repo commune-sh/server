@@ -57,19 +57,18 @@ type AccessToken struct {
 	Token string `json:"token"`
 }
 
-func ExtractAccessToken(req *http.Request) (*AccessToken, error) {
+func ExtractAccessToken(req *http.Request) (*string, error) {
 	authBearer := req.Header.Get("Authorization")
 
 	if authBearer != "" {
 		parts := strings.SplitN(authBearer, " ", 2)
 		if len(parts) != 2 ||
-			(parts[0] != "Bearer" && parts[0] != "Bot") {
+			parts[0] != "Bearer" {
 			return nil, errors.New("Invalid Authorization header.")
 		}
-		return &AccessToken{
-			Type:  parts[0],
-			Token: parts[1],
-		}, nil
+
+		return &parts[1], nil
+
 	}
 
 	return nil, errors.New("Missing access token.")

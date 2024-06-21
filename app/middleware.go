@@ -112,3 +112,49 @@ func (c *App) ValidateRoomIsPublic(h http.Handler) http.Handler {
 		h.ServeHTTP(w, r)
 	})
 }
+
+// makes sure this route is autehnticated
+func (c *App) RequireAuthentication(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		access_token, err := ExtractAccessToken(r)
+
+		if err != nil || access_token == nil {
+			RespondWithJSON(w, &JSONResponse{
+				Code: http.StatusOK,
+				JSON: map[string]any{
+					"errcode": "BAD_ACCESS_TOKEN",
+					"error":   "access token invalid",
+				},
+			})
+			return
+		}
+
+		v, err := c.MatrixDB.Queries.IsAccessTokenValid(context.Background(), *access_token)
+
+		if err != nil || !v.Valid || v.UserID == "" {
+			RespondWithJSON(w, &JSONResponse{
+				Code: http.StatusOK,
+				JSON: map[string]any{
+					"authenticated": false,
+					"error":         "token invalid",
+				},
+			})
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), "user_id", v.UserID)
+		h.ServeHTTP(w, r.WithContext(ctx))
+
+	})
+}
+
+func (c *App) AuthenticatedUser(r *http.Request) *string {
+	user_id, ok := r.Context().Value("user_id").(string)
+
+	if !ok {
+		return nil
+	}
+
+	return &user_id
+}
