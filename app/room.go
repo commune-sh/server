@@ -10,7 +10,7 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-type RoomHierarchyItem struct {
+type RoomItem struct {
 	RoomID           string        `json:"room_id"`
 	RoomType         string        `json:"room_type"`
 	CanonicalAlias   string        `json:"canonical_alias,omitempty"`
@@ -44,12 +44,12 @@ func (c *App) RoomHierarchy() http.HandlerFunc {
 			return
 		}
 
-		rooms := []RoomHierarchyItem{}
+		rooms := []RoomItem{}
 
 		if len(h) > 0 {
 			for _, state := range h {
 
-				room := RoomHierarchyItem{
+				room := RoomItem{
 					RoomID: state.RoomID,
 				}
 
@@ -177,12 +177,12 @@ func (c *App) PublicRooms() http.HandlerFunc {
 			return
 		}
 
-		rooms := []RoomHierarchyItem{}
+		rooms := []RoomItem{}
 
 		if len(spaces) > 0 {
 			for _, state := range spaces {
 
-				room := RoomHierarchyItem{
+				room := RoomItem{
 					RoomID: state.RoomID,
 				}
 

@@ -66,6 +66,11 @@ func routes(c *App) chi.Router {
 		})
 	})
 
+	r.Route("/spaces", func(r chi.Router) {
+		r.Use(c.RequireAuthentication)
+		r.Get("/", c.GetUserSpaces())
+	})
+
 	r.Route("/search", func(r chi.Router) {
 		r.Route("/", func(r chi.Router) {
 			r.Post("/", c.SearchRoom())

@@ -20,8 +20,6 @@ FROM rooms r
 JOIN room_stats_state rss 
 ON rss.room_id = r.room_id
 JOIN current_state_events cse ON r.room_id = cse.room_id
-JOIN current_state_events cs ON r.room_id = cs.room_id
-LEFT JOIN event_json ej ON ej.event_id = cs.event_id
 JOIN current_state_events csp ON r.room_id = csp.room_id
 LEFT JOIN event_json ejj ON ejj.event_id = csp.event_id
 JOIN room_stats_current rsc ON rsc.room_id = r.room_id
@@ -32,8 +30,10 @@ WHERE cse.type = 'm.space.child'
     WHERE type = 'm.space.parent'
   )
 AND r.is_public is true
-AND cs.type = 'm.room.history_visibility'
-AND ej.json::jsonb->'content'->>'history_visibility' = 'world_readable'
+AND rss.history_visibility = 'world_readable'
+AND rss.join_rules = 'public'
+AND rss.guest_access = 'can_join'
+AND rss.canonical_alias IS NOT NULL
 AND csp.type = 'commune.room.public'
 AND ejj.json::jsonb->'content'->>'public' = 'true'
 ORDER BY r.room_id, rsc.joined_members ASC
@@ -107,3 +107,18 @@ LEFT JOIN LATERAL (
 	WHERE c.room_id = rh.room_id AND c.type = 'm.space.child') as is_parent
 ) cs ON TRUE
 ORDER BY ev.origin_server_ts ASC;
+
+-- name: GetUserSpaces :many
+SELECT DISTINCT ON (r.room_id) rss.*, rsc.joined_members
+FROM rooms r
+JOIN room_stats_state rss 
+ON rss.room_id = r.room_id
+JOIN current_state_events cse ON r.room_id = cse.room_id
+JOIN room_stats_current rsc ON rsc.room_id = r.room_id
+WHERE cse.type = 'm.space.child'
+AND r.creator = $1
+AND r.room_id NOT IN (
+    SELECT room_id
+    FROM current_state_events
+    WHERE type = 'm.space.parent'
+);
