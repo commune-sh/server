@@ -105,7 +105,15 @@ func Start(s *StartRequest) {
 		Handler:     router,
 	}
 
-	logger := zerolog.New(os.Stderr).With().Timestamp().Logger()
+	// set up log file
+	logFile, err := os.OpenFile("commune.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer logFile.Close()
+	mw := zerolog.MultiLevelWriter(logFile, zerolog.ConsoleWriter{Out: os.Stdout})
+
+	logger := zerolog.New(mw).With().Timestamp().Logger()
 
 	c := &App{
 		MatrixDB: mdb,

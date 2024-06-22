@@ -9,8 +9,8 @@ import (
 	"errors"
 	"fmt"
 	"html/template"
+	"io"
 	"io/ioutil"
-	"log"
 	"math"
 	"math/rand"
 	"net/http"
@@ -85,7 +85,7 @@ func WellKnown(s string) (*WellKnownServer, error) {
 	}
 
 	defer resp.Body.Close()
-	bodyBytes, _ := ioutil.ReadAll(resp.Body)
+	bodyBytes, _ := io.ReadAll(resp.Body)
 
 	var res WellKnownServer
 
@@ -129,7 +129,6 @@ func FederationRoom(username string) (bool, *UserID) {
 	validUsernameRegex := regexp.MustCompile(`^.+?:.+$`)
 	if validUsernameRegex.MatchString(username) {
 		parts := strings.Split(username, ":")
-		log.Println(parts)
 		return true, &UserID{
 			LocalPart:  parts[0],
 			ServerName: parts[1],
@@ -413,7 +412,6 @@ func ConstructMac(u *NewUser, nonce, secret string) (string, error) {
 	mac := hmac.New(sha1.New, []byte(secret))
 	_, err := mac.Write([]byte(joined))
 	if err != nil {
-		log.Println(err)
 		return "", err
 	}
 
@@ -450,7 +448,6 @@ var flake = sonyflake.NewSonyflake(sonyflake.Settings{})
 func genSonyflake() uint64 {
 	id, err := flake.NextID()
 	if err != nil {
-		log.Println(err)
 	}
 	// Note: this is base16, could shorten by encoding as base62 string
 	return id

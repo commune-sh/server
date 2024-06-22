@@ -1,4 +1,5 @@
 bin/*
 config.toml
+*.log
 db/gen
 db/matrix/gen

@@ -136,8 +136,9 @@ func (c *App) RequireAuthentication(h http.Handler) http.Handler {
 			RespondWithJSON(w, &JSONResponse{
 				Code: http.StatusOK,
 				JSON: map[string]any{
-					"authenticated": false,
-					"error":         "token invalid",
+					"errcode":     "M_UNKNOWN_TOKEN",
+					"error":       "Invalid access token passed.",
+					"soft_logout": false,
 				},
 			})
 			return
