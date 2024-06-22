@@ -144,6 +144,8 @@ func (c *App) RequireAuthentication(h http.Handler) http.Handler {
 		}
 
 		ctx := context.WithValue(r.Context(), "user_id", v.UserID)
+		ctx = context.WithValue(ctx, "access_token", *access_token)
+
 		h.ServeHTTP(w, r.WithContext(ctx))
 
 	})
@@ -157,4 +159,39 @@ func (c *App) AuthenticatedUser(r *http.Request) *string {
 	}
 
 	return &user_id
+}
+
+func (c *App) AuthenticatedAccessToken(r *http.Request) *string {
+	access_token, ok := r.Context().Value("access_token").(string)
+
+	if !ok {
+		return nil
+	}
+
+	return &access_token
+
+}
+
+// makes sure this route is autehnticated
+func (c *App) RequireAdmin(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		user_id := c.AuthenticatedUser(r)
+
+		is_admin, err := c.MatrixDB.Queries.IsUserAdmin(context.Background(), user_id)
+
+		if err != nil || !is_admin {
+			RespondWithJSON(w, &JSONResponse{
+				Code: http.StatusOK,
+				JSON: map[string]any{
+					"errcode": "M_FORBIDDEN",
+					"error":   "You are not a server admin",
+				},
+			})
+			return
+		}
+
+		h.ServeHTTP(w, r)
+
+	})
 }

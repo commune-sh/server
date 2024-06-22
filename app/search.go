@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 )
 
@@ -10,6 +11,29 @@ type SearchCategories struct {
 		RoomEvents struct {
 			SearchTerm string `json:"search_term"`
 			OrderBy    string `json:"order_by"`
+		} `json:"room_events"`
+	} `json:"search_categories"`
+}
+
+type SearchResults struct {
+	SearchCategories struct {
+		RoomEvents struct {
+			SearchTerm string `json:"search_term"`
+			OrderBy    string `json:"order_by"`
+			Results    []struct {
+				Rank   float64 `json:"rank"`
+				Result struct {
+					Type           string          `json:"type"`
+					Sender         string          `json:"sender"`
+					Content        json.RawMessage `json:"content"`
+					StateKey       string          `json:"state_key"`
+					OriginServerTS int64           `json:"origin_server_ts"`
+					Unsigned       json.RawMessage `json:"unsigned"`
+					EventID        string          `json:"event_id"`
+					RoomID         string          `json:"room_id"`
+				} `json:"result"`
+				Context json.RawMessage `json:"context,omitempty"`
+			} `json:"results"`
 		} `json:"room_events"`
 	} `json:"search_categories"`
 }

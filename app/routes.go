@@ -66,6 +66,12 @@ func routes(c *App) chi.Router {
 		})
 	})
 
+	r.Route("/admin", func(r chi.Router) {
+		r.Use(c.RequireAuthentication)
+		r.Use(c.RequireAdmin)
+		r.Get("/*", c.MatrixAdminProxy())
+	})
+
 	r.Route("/spaces", func(r chi.Router) {
 		r.Use(c.RequireAuthentication)
 		r.Get("/", c.GetUserSpaces())
