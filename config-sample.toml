@@ -10,6 +10,12 @@ db = "postgres://postgres:postgres@host.docker.internal:5432/synapse?sslmode=dis
 [security]
 allowed_origins = ["http://localhost:5173", "http://localcommune.com"]
 
+[log]
+max_size = 100
+max_backups = 7
+max_age = 30
+compress = true
+
 [capabilities.public_rooms]
 list_rooms = true
 view_hierarchy = true
