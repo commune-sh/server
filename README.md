@@ -26,7 +26,7 @@ Example configurations for the systemd unit and an nginx reverse proxy are inclu
 
 Additionally, you can run the server in a container with `docker compose up -v`. Note that this has only been minimally tested, and will change as soon as we work out a proper deployment strategy.
 
-Run this server on the same VPS hosting your Synapse server. You can run it on a different host, but that would require opening up Postgres access to the public network. It is not recommended at this stage. If you do run it on a different host, consider settings up a private network. 
+Run this server on the same VPS hosting your Synapse server. You can run it on a different host, but that would require opening up Postgres access to the public network. It is not recommended at this stage. If you do run it on a different host, consider setting up a private network. 
 
 
 #### Configuration
@@ -95,7 +95,7 @@ A public room in Commune is a matrix room that has the following [state events](
 - A state event of the type `commune.room.public` with content `{"public": true}`
 - Room must be local to the homeserver, not federated
 
-Rooms without these state events cannot be queried. This means that simply running this server will not automatically allow access to rooms in a matrix homeserver. The room owners must explicitly include state events to make them publicly accessible. This provides a good balance between the need to have public rooms, while ensuring that every room doesn't become public by default.
+Rooms without these state events cannot be queried. This means that simply running this server will not automatically allow access to rooms in a matrix homeserver. The room owners must explicitly add these state events to make them publicly accessible. This provides a good balance between the need to have public rooms, while ensuring that every room isn't publicly accessible by default.
 
 This server does not read data from private or encrypted rooms, including DM rooms. Further limits will likely be added to ensure sensitive room data cannot be publicly accessed.
 
