@@ -22,7 +22,7 @@ Follow these steps to run this server:
 4. Copy `config-sample.toml` to `config.toml` and update the configuration.
 5. Run the binary as a [systemd service](https://github.com/commune-os/server/blob/main/docs/commune-server.service) and put it behind a [reverse proxy](https://github.com/commune-os/server/blob/main/docs/nginx-reverse-proxy).
 
-Example configurations for the systemd unit and an nginx reverse proxy are included in the [/docs](https://github.com/commune-os/server/blob/main/docs) directory.
+Example configurations for the systemd unit and an nginx reverse proxy are included in the [docs](https://github.com/commune-os/server/blob/main/docs) directory.
 
 Additionally, you can run the server in a container with `docker compose up -v`. Note that this has only been minimally tested, and will change as soon as we work out a proper deployment strategy.
 
@@ -90,7 +90,7 @@ These are all public endpoints and don't require authorization.
 A public room in Commune is a matrix room that has the following [state events](https://spec.matrix.org/v1.10/client-server-api/#types-of-room-events):
 - `history_visibility` set to `world_readable`
 - `guest_access` set to `can_join`
-- `join_rules` set to public`
+- `join_rules` set to `public`
 - `canonical_alias` exists
 - A state event of the type `commune.room.public` with content `{"public": true}`
 - Room must be local to the homeserver, not federated
