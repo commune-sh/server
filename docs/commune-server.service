@@ -1,0 +1,15 @@
+[Unit]
+Description=Commune Public Server
+
+After=postgresql.service
+
+[Service]
+Type=simple
+WorkingDirectory=/home/commune/server
+ExecStart=/home/commune/server/bin/commune
+
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

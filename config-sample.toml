@@ -1,14 +1,21 @@
 [app]
-domain = "localhost:8989"
+# The domain pointing to this server
+domain = "public.commune.sh"
+# The port the server will listen on
 port = 8989
 
 [matrix]
-homeserver = "localhost:8080"
-server_name = "localhost:8480"
-db = "postgres://postgres:postgres@host.docker.internal:5432/synapse?sslmode=disable"
+# Local domain of the Synapse server
+homeserver = "localhost:8008"
+# The server_name part of your Synapse configuration
+server_name = "commune.sh"
+# DB connection string for the Synapse database
+db = "postgres://commune:password@host.docker.internal:5432/synapse?sslmode=disable"
 
 [security]
-allowed_origins = ["http://localhost:5173", "http://localcommune.com"]
+# This should include the domain you'll run this server on, and any other
+# domains you want to allow for local development
+allowed_origins = ["http://public.commune.sh"]
 
 [log]
 max_size = 100
@@ -17,9 +24,11 @@ max_age = 30
 compress = true
 
 [capabilities.public_rooms]
+# List public server capabilities. Clients can query this endpoint to see what the server supports.
 list_rooms = true
 view_hierarchy = true
 read_messages = true
 
 [cache]
+# Cache configuration
 public_rooms = true

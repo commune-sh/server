@@ -8,7 +8,7 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-// make sure this room exists
+// Ensure that room actually exists
 func (c *App) EnsureRoomExists(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -73,7 +73,7 @@ func (c *App) EnsureRoomExists(h http.Handler) http.Handler {
 	})
 }
 
-// validate room is public
+// Ensure that room is public
 func (c *App) ValidateRoomIsPublic(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -93,10 +93,6 @@ func (c *App) ValidateRoomIsPublic(h http.Handler) http.Handler {
 			return
 		}
 
-		c.Log.Debug().
-			Bool("Public", is_public).
-			Msg("Is room public?")
-
 		// not public?
 		if !is_public {
 			RespondWithJSON(w, &JSONResponse{
@@ -113,7 +109,7 @@ func (c *App) ValidateRoomIsPublic(h http.Handler) http.Handler {
 	})
 }
 
-// makes sure this route is autehnticated
+// This ensures that the user is authenticated
 func (c *App) RequireAuthentication(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
@@ -152,6 +148,7 @@ func (c *App) RequireAuthentication(h http.Handler) http.Handler {
 	})
 }
 
+// Get authenticated user's ID
 func (c *App) AuthenticatedUser(r *http.Request) *string {
 	user_id, ok := r.Context().Value("user_id").(string)
 
@@ -162,6 +159,7 @@ func (c *App) AuthenticatedUser(r *http.Request) *string {
 	return &user_id
 }
 
+// Get authenticated user's access token
 func (c *App) AuthenticatedAccessToken(r *http.Request) *string {
 	access_token, ok := r.Context().Value("access_token").(string)
 
@@ -173,7 +171,7 @@ func (c *App) AuthenticatedAccessToken(r *http.Request) *string {
 
 }
 
-// makes sure this route is autehnticated
+// This ensures that authenticated user is an admin
 func (c *App) RequireAdmin(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
