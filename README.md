@@ -48,8 +48,8 @@ server_name = "commune.sh"
 db = "postgres://commune:password@host.docker.internal:5432/synapse?sslmode=disable"
 
 [security]
-# This should include the domain you'll run this server on, and any other
-# domains you want to allow for local development
+# This should include the domain you'll run this server on, 
+# and any other domains you want to allow for local development.
 allowed_origins = ["http://public.commune.sh"]
 
 [log]
@@ -59,7 +59,8 @@ max_age = 30
 compress = true
 
 [capabilities.public_rooms]
-# List public server capabilities. Clients can query this endpoint to see what the server supports.
+# List public server capabilities. Clients can query 
+# this endpoint to see what the server supports.
 list_rooms = true
 view_hierarchy = true
 read_messages = true
@@ -84,7 +85,7 @@ We currently implement the following API endpoints:
  - [x] Search room messages - `/search`
  - [ ] Sync room events - `/sync`
 
-These are all public endpoints and don't require authorization.
+These are all public endpoints and don't require authorization. An example of the data returned by these endpoints can be found in the [docs](https://github.com/commune-os/server/blob/main/docs/api.md).
 
 #### What is a public Room
 A public room in Commune is a matrix room that has the following [state events](https://spec.matrix.org/v1.10/client-server-api/#types-of-room-events):
