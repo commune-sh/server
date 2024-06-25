@@ -10,7 +10,7 @@ A live version of this server is running on [public.commune.sh](https://public.c
 
 #### Roadmap
 
-- [x] Query enough public room data
+- [x] Query enough public room data to display matrix rooms on the web
 - [ ] Make queries more efficient
 - [ ] Generate static archived version of public rooms
 - [ ] Support alternative homeserver implementations - Dendrite, Conduit
@@ -89,6 +89,7 @@ We currently implement the following API endpoints:
  - [x] Query room current state events - `/room/{room_id/state_events`
  - [x] Query space hierarchy - `/room/{room_id}/hierarchy`
  - [x] Query room messages - `/room/{room_id}/messages`
+ - [x] Query room members essential data - `/room/{room_id}/joined_members`
  - [x] Query room members - `/room/{room_id}/members`
  - [x] Search room messages - `/search`
  - [ ] Sync room events - `/sync`
