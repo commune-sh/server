@@ -6,7 +6,7 @@ This server runs next to a Synapse Matrix server as a proxy, and provides API en
 
 This server aims to provide a subset of read-only endpoints from the Matrix [client-server API](https://spec.matrix.org/v1.10/client-server-api/). 
 
-A live version of this server is running on [public.commune.sh](https://public.commune.sh/publicRooms), querying our existing homeserver on `commune.sh`. You may try out the API on the live instance to test how it works and view what data it returns.
+A live version of this server is running on [public.commune.sh](https://public.commune.sh/publicRooms), querying our existing homeserver on `commune.sh`. You may try out the API on the live instance to test how it works and view what data it returns. Example API requests and responses can be found in [docs/api](https://github.com/commune-os/server/blob/main/docs/api.md).
 
 ### Requirements
 Commune only supports Synapse right now - but support for Conduit is on our roadmap. In the future, this server may run as an appservice, so that it's no longer tied to a particular homeserver implementation.
@@ -85,7 +85,7 @@ We currently implement the following API endpoints:
  - [x] Search room messages - `/search`
  - [ ] Sync room events - `/sync`
 
-These are all public endpoints and don't require authorization. An example of the data returned by these endpoints can be found in the [docs](https://github.com/commune-os/server/blob/main/docs/api.md).
+These are all public endpoints and don't require authorization.
 
 #### What is a public Room
 A public room in Commune is a matrix room that has the following [state events](https://spec.matrix.org/v1.10/client-server-api/#types-of-room-events):
