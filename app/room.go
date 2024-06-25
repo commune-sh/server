@@ -381,7 +381,7 @@ func (c *App) IsRoomPublic() http.HandlerFunc {
 	}
 }
 
-type JoinedMember struct {
+type Member struct {
 	Type           string          `json:"type"`
 	Sender         string          `json:"sender"`
 	Content        json.RawMessage `json:"content"`
@@ -392,7 +392,7 @@ type JoinedMember struct {
 	RoomID         string          `json:"room_id"`
 }
 
-func (c *App) RoomJoinedMembers() http.HandlerFunc {
+func (c *App) RoomMembers() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		room_id := chi.URLParam(r, "room_id")
@@ -405,12 +405,12 @@ func (c *App) RoomJoinedMembers() http.HandlerFunc {
 			limit = lp
 		}
 
-		rmp := matrix_db.GetRoomJoinedMembersParams{
+		rmp := matrix_db.GetRoomMembersParams{
 			RoomID: room_id,
 			Limit:  &limit,
 		}
 
-		events, err := c.MatrixDB.Queries.GetRoomJoinedMembers(context.Background(), rmp)
+		events, err := c.MatrixDB.Queries.GetRoomMembers(context.Background(), rmp)
 
 		if err != nil {
 			RespondWithError(w, &JSONResponse{
@@ -422,13 +422,13 @@ func (c *App) RoomJoinedMembers() http.HandlerFunc {
 			return
 		}
 
-		mem := []JoinedMember{}
+		mem := []Member{}
 
 		if len(events) > 0 {
 
 			for _, x := range events {
 
-				cs := JoinedMember{
+				cs := Member{
 					RoomID: room_id,
 				}
 
@@ -474,6 +474,71 @@ func (c *App) RoomJoinedMembers() http.HandlerFunc {
 			Code: http.StatusOK,
 			JSON: map[string]any{
 				"chunk": mem,
+			},
+		})
+
+	}
+}
+
+type JoinedMemberDetails struct {
+	AvatarURL   string `json:"avatar_url"`
+	DisplayName string `json:"display_name"`
+}
+
+func (c *App) RoomJoinedMembers() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		room_id := chi.URLParam(r, "room_id")
+
+		var limit int64 = 10
+
+		l := r.URL.Query().Get("limit")
+		lp, _ := strconv.ParseInt(l, 10, 64)
+		if lp > 0 {
+			limit = lp
+		}
+
+		rmp := matrix_db.GetRoomJoinedMembersParams{
+			RoomID: room_id,
+			Limit:  &limit,
+		}
+
+		events, err := c.MatrixDB.Queries.GetRoomJoinedMembers(context.Background(), rmp)
+
+		if err != nil {
+			RespondWithError(w, &JSONResponse{
+				Code: http.StatusInternalServerError,
+				JSON: map[string]any{
+					"error": err.Error(),
+				},
+			})
+			return
+		}
+
+		mem := map[string]JoinedMemberDetails{}
+
+		if len(events) > 0 {
+
+			for _, x := range events {
+
+				cs := JoinedMemberDetails{}
+
+				if x.AvatarUrl != nil {
+					cs.AvatarURL = *x.AvatarUrl
+				}
+
+				if x.DisplayName != nil {
+					cs.DisplayName = *x.DisplayName
+				}
+
+				mem[x.UserID] = cs
+			}
+		}
+
+		RespondWithJSON(w, &JSONResponse{
+			Code: http.StatusOK,
+			JSON: map[string]any{
+				"joined": mem,
 			},
 		})
 

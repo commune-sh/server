@@ -85,6 +85,14 @@ AND rss.room_id IN (
 );
 
 -- name: GetRoomJoinedMembers :many
+SELECT rm.user_id, rm.display_name, rm.avatar_url
+FROM room_memberships rm
+WHERE rm.room_id = $1
+AND rm.membership = 'join'
+LIMIT sqlc.narg('limit')::bigint;
+
+
+-- name: GetRoomMembers :many
 SELECT rm.user_id, rm.event_id, rm.display_name, rm.avatar_url, rm.room_id, 
 ej.json as event_json
 FROM room_memberships rm

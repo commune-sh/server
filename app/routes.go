@@ -63,7 +63,8 @@ func routes(c *App) chi.Router {
 			r.Get("/state", c.RoomState())
 			r.Get("/state_events", c.RoomStateEvents())
 			r.Get("/messages", c.RoomMessages())
-			r.Get("/members", c.RoomJoinedMembers())
+			r.Get("/members", c.RoomMembers())
+			r.Get("/joined_members", c.RoomJoinedMembers())
 		})
 	})
 
