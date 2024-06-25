@@ -1,8 +1,8 @@
-### What is it? 
+### Commune Server
 
 Commune makes matrix servers publicly accessbile in the open web.
 
-This server runs next to a Synapse Matrix server as a proxy, and provides API endpoints to read data from public rooms. This enables [matrix clients](https://github.com/commune-os/client) to implement publicly accessible chat rooms that can be viewed by non-authenticated users, allowing them to be indexed by search engines and ensuring communities and their information can exist in the public.
+This server component runs next to a Synapse/Matrix server as a proxy, and provides API endpoints to read data from public rooms. This enables [matrix clients](https://github.com/commune-os/client) to implement publicly accessible chat rooms that can be viewed by non-authenticated users, allowing them to be indexed by search engines and ensuring communities and their information can exist in the public.
 
 This server aims to provide a subset of read-only endpoints from the Matrix [client-server API](https://spec.matrix.org/v1.10/client-server-api/). 
 
