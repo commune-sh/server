@@ -51,7 +51,7 @@ FROM current_state_events cse JOIN event_json ej ON ej.event_id = cse.event_id
 WHERE cse.room_id = $1
 AND cse.type = 'm.room.guest_access';
 
--- name: GetRoomJoinedMembers :one
+-- name: GetRoomJoinedMembersCount :one
 SELECT joined_members 
 FROM room_stats_current
 WHERE room_id = $1;
@@ -83,4 +83,14 @@ AND rss.room_id IN (
 	WHERE room_id = $1
 	AND type = 'commune.room.public'
 );
+
+-- name: GetRoomJoinedMembers :many
+SELECT rm.user_id, rm.event_id, rm.display_name, rm.avatar_url, rm.room_id, 
+ej.json as event_json
+FROM room_memberships rm
+JOIN event_json ej
+ON ej.event_id = rm.event_id
+WHERE rm.room_id = $1
+AND rm.membership = 'join'
+LIMIT sqlc.narg('limit')::bigint;
 

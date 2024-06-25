@@ -8,6 +8,11 @@ This server aims to provide a subset of read-only endpoints from the Matrix [cli
 
 A live version of this server is running on [public.commune.sh](https://public.commune.sh/publicRooms), querying our existing homeserver on `commune.sh`. You may try out the API on the live instance to test how it works and view what data it returns. Example API requests and responses can be found in [docs/api](https://github.com/commune-os/server/blob/main/docs/api.md).
 
+#### Roadmap
+
+- [x] Query enough public room data
+- [ ] Support alternative homeserver implementations - Dendrite, Conduit
+
 ### Requirements
 Commune only supports Synapse right now - but support for Conduit is on our roadmap. In the future, this server may run as an appservice, so that it's no longer tied to a particular homeserver implementation.
 

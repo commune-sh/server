@@ -1,6 +1,7 @@
 package app
 
 import (
+	matrix_db "commune/db/matrix/gen"
 	"context"
 	"encoding/json"
 	"net/http"
@@ -374,6 +375,105 @@ func (c *App) IsRoomPublic() http.HandlerFunc {
 			Code: http.StatusOK,
 			JSON: map[string]any{
 				"public": is_public,
+			},
+		})
+
+	}
+}
+
+type JoinedMember struct {
+	Type           string          `json:"type"`
+	Sender         string          `json:"sender"`
+	Content        json.RawMessage `json:"content"`
+	StateKey       string          `json:"state_key"`
+	OriginServerTS int64           `json:"origin_server_ts"`
+	Unsigned       json.RawMessage `json:"unsigned,omitempty"`
+	EventID        string          `json:"event_id"`
+	RoomID         string          `json:"room_id"`
+}
+
+func (c *App) RoomJoinedMembers() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+
+		room_id := chi.URLParam(r, "room_id")
+
+		var limit int64 = 10
+
+		l := r.URL.Query().Get("limit")
+		lp, _ := strconv.ParseInt(l, 10, 64)
+		if lp > 0 {
+			limit = lp
+		}
+
+		rmp := matrix_db.GetRoomJoinedMembersParams{
+			RoomID: room_id,
+			Limit:  &limit,
+		}
+
+		events, err := c.MatrixDB.Queries.GetRoomJoinedMembers(context.Background(), rmp)
+
+		if err != nil {
+			RespondWithError(w, &JSONResponse{
+				Code: http.StatusInternalServerError,
+				JSON: map[string]any{
+					"error": err.Error(),
+				},
+			})
+			return
+		}
+
+		mem := []JoinedMember{}
+
+		if len(events) > 0 {
+
+			for _, x := range events {
+
+				cs := JoinedMember{
+					RoomID: room_id,
+				}
+
+				if x.EventID != "" {
+					cs.EventID = x.EventID
+				}
+
+				content := gjson.Get(x.EventJson, "content")
+				if content.String() != "" {
+					cs.Content = json.RawMessage(content.Raw)
+				}
+
+				typ := gjson.Get(x.EventJson, "type")
+				if typ.String() != "" {
+					cs.Type = typ.String()
+				}
+
+				state_key := gjson.Get(x.EventJson, "state_key")
+				if state_key.String() != "" {
+					cs.StateKey = state_key.String()
+				}
+
+				sender := gjson.Get(x.EventJson, "sender")
+				if sender.String() != "" {
+					cs.Sender = sender.String()
+				}
+
+				origin_server_ts := gjson.Get(x.EventJson, "origin_server_ts")
+				if origin_server_ts.String() != "" {
+					cs.OriginServerTS = origin_server_ts.Int()
+				}
+
+				unsigned := gjson.Get(x.EventJson, "unsigned")
+				if unsigned.String() != "" {
+					cs.Unsigned = json.RawMessage(unsigned.Raw)
+				}
+
+				mem = append(mem, cs)
+			}
+		}
+
+		RespondWithJSON(w, &JSONResponse{
+			Code: http.StatusOK,
+			JSON: map[string]any{
+				"chunk": mem,
 			},
 		})
 
