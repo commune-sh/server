@@ -290,6 +290,37 @@ descendants.
 }
 ```
 
+### GET /rooms/{room_id}/joined_members
+
+This API returns returns the basic data for members in a public room. It is more
+efficient than the `/members` endpoint.
+
+##### Example Request:
+`https://public.commune.sh/rooms/!rtrpurCAEOKmDDKrPs:commune.sh/joined_members`
+##### Example Response.
+```json
+{
+  "joined": {
+    "@ah:commune.sh": {
+      "avatar_url": "",
+      "display_name": "ah"
+    },
+    "@bob:shpong.com": {
+      "avatar_url": "media/attachments/21TdVLt7fu0hVVWD9mku1t4oa8ozINfM.jpg",
+      "display_name": "bob"
+    },
+    "@commune:commune.sh": {
+      "avatar_url": "",
+      "display_name": "commune"
+    },
+    "@kfjdkfjkdfkjf:shpong.com": {
+      "avatar_url": "",
+      "display_name": "kfjdkfjkdfkjf"
+    }
+  }
+}
+```
+
 ### GET /rooms/{room_id}/members
 
 This API returns returns the members of a public room.
