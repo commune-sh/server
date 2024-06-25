@@ -289,3 +289,64 @@ descendants.
   ]
 }
 ```
+
+### GET /rooms/{room_id}/members
+
+This API returns returns the members of a public room.
+
+##### Example Request:
+`https://public.commune.sh/rooms/!rtrpurCAEOKmDDKrPs:commune.sh/members`
+##### Example Response.
+```json
+{
+  "chunk": [
+    {
+      "type": "m.room.member",
+      "sender": "@commune:commune.sh",
+      "content": {
+        "membership": "join",
+        "displayname": "commune"
+      },
+      "state_key": "@commune:commune.sh",
+      "origin_server_ts": 1689387184518,
+      "unsigned": {
+        "age_ts": 1689387184518
+      },
+      "event_id": "$xwN1k5w_HN52ruF3i5sxzDO7yGb9Cq3ymYP52-lMeNo",
+      "room_id": "!rtrpurCAEOKmDDKrPs:commune.sh"
+    },
+    {
+      "type": "m.room.member",
+      "sender": "@ah:commune.sh",
+      "content": {
+        "membership": "join",
+        "displayname": "ah"
+      },
+      "state_key": "@ah:commune.sh",
+      "origin_server_ts": 1689387470815,
+      "unsigned": {
+        "age_ts": 1689387470815
+      },
+      "event_id": "$F6WWUSy8gX0-FXHci4wcW3XFgGvHkB10FnP7jT7vuV4",
+      "room_id": "!rtrpurCAEOKmDDKrPs:commune.sh"
+    },
+    {
+      "type": "m.room.member",
+      "sender": "@kfjdkfjkdfkjf:shpong.com",
+      "content": {
+        "avatar_url": null,
+        "displayname": "kfjdkfjkdfkjf",
+        "membership": "join"
+      },
+      "state_key": "@kfjdkfjkdfkjf:shpong.com",
+      "origin_server_ts": 1689712219241,
+      "unsigned": {
+        "age": 6
+      },
+      "event_id": "$PoVPcRWkJ_-OA8aYhEokE9eBsT54Ov5hTBkNPpAnl5o",
+      "room_id": "!rtrpurCAEOKmDDKrPs:commune.sh"
+    }
+  ]
+}
+```
+

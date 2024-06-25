@@ -87,6 +87,7 @@ We currently implement the following API endpoints:
  - [x] Query room current state events - `/room/{room_id/state_events`
  - [x] Query space hierarchy - `/room/{room_id}/hierarchy`
  - [x] Query room messages - `/room/{room_id}/messages`
+ - [x] Query room members - `/room/{room_id}/members`
  - [x] Search room messages - `/search`
  - [ ] Sync room events - `/sync`
 
