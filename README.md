@@ -11,6 +11,8 @@ A live version of this server is running on [public.commune.sh](https://public.c
 #### Roadmap
 
 - [x] Query enough public room data
+- [ ] Make queries more efficient
+- [ ] Generate static archived version of public rooms
 - [ ] Support alternative homeserver implementations - Dendrite, Conduit
 
 ### Requirements
