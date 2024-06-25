@@ -89,6 +89,11 @@ SELECT rm.user_id, rm.display_name, rm.avatar_url
 FROM room_memberships rm
 WHERE rm.room_id = $1
 AND rm.membership = 'join'
+AND rm.user_id NOT IN (
+	SELECT r.user_id FROM room_memberships r
+	WHERE r.room_id = $1
+	AND r.membership = 'leave'
+)
 LIMIT sqlc.narg('limit')::bigint;
 
 
@@ -100,5 +105,10 @@ JOIN event_json ej
 ON ej.event_id = rm.event_id
 WHERE rm.room_id = $1
 AND rm.membership = 'join'
+AND rm.user_id NOT IN (
+	SELECT r.user_id FROM room_memberships r
+	WHERE r.room_id = $1
+	AND r.membership = 'leave'
+)
 LIMIT sqlc.narg('limit')::bigint;
 
