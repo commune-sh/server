@@ -5,13 +5,16 @@ domain = "public.commune.sh"
 port = 8989
 
 [appservice]
+# sender_localpart from the appservice registration
 sender_localpart = "public"
-access_token = "ot2ojahshee4Cee3eem7soTeilieR5pu"
-hs_access_token = "quie5fa5Baeneekah8uxeego5eepae9k"
+# The access token from the appservice registration
+access_token = "app_service_access_token"
+# The homeserver access token from the appservice registration
+hs_access_token = "homeserver_access_token"
 
 [matrix]
 # Local domain of the Synapse server
-homeserver = "localhost:8008"
+homeserver = "http://localhost:8008"
 # The server_name part of your Synapse configuration
 server_name = "commune.sh"
 # DB connection string for the Synapse database

@@ -3,8 +3,9 @@ package app
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
+
+	"maunium.net/go/mautrix/event"
 )
 
 type MatrixEvent struct {
@@ -23,10 +24,6 @@ type MatrixEvent struct {
 func (c *App) Transactions() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		authBearer := r.Header.Get("Authorization")
-
-		log.Println("Authorization: ", authBearer)
-
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -35,7 +32,7 @@ func (c *App) Transactions() http.HandlerFunc {
 		defer r.Body.Close()
 
 		var events struct {
-			Events []MatrixEvent `json:"events"`
+			Events []event.Event `json:"events"`
 		}
 		if err := json.Unmarshal(body, &events); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -46,7 +43,9 @@ func (c *App) Transactions() http.HandlerFunc {
 			c.Log.Info().Msgf("Event: %v", event)
 		}
 
-		w.WriteHeader(http.StatusOK)
+		RespondWithJSON(w, &JSONResponse{
+			Code: http.StatusOK,
+		})
 
 	}
 }

@@ -11,7 +11,7 @@ import (
 
 func (c *App) MatrixAdminProxy() http.HandlerFunc {
 
-	endpoint := fmt.Sprintf("http://%s/_synapse/", c.Config.Matrix.Homeserver)
+	endpoint := fmt.Sprintf("%s/_synapse/", c.Config.Matrix.Homeserver)
 	target, _ := url.Parse(endpoint)
 
 	proxy := httputil.NewSingleHostReverseProxy(target)

@@ -16,6 +16,8 @@ import (
 	"github.com/robfig/cron/v3"
 
 	"github.com/rs/zerolog"
+
+	"maunium.net/go/mautrix"
 )
 
 func init() {
@@ -32,6 +34,7 @@ type App struct {
 	Cron     *cron.Cron
 	Cache    *Cache
 	Log      *zerolog.Logger
+	Matrix   *mautrix.Client
 }
 
 func (c *App) Activate() {
@@ -111,6 +114,11 @@ func Start(s *StartRequest) {
 		panic(err)
 	}
 
+	client, err := NewMatrixClient()
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	c := &App{
 		MatrixDB: mdb,
 		Config:   conf,
@@ -119,6 +127,7 @@ func Start(s *StartRequest) {
 		Cron:     cron,
 		Cache:    cache,
 		Log:      logger,
+		Matrix:   client,
 	}
 
 	c.Routes()

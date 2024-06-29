@@ -197,16 +197,16 @@ func (c *App) RequireAdmin(h http.Handler) http.Handler {
 }
 
 // This ensures that request is from Synapse Homeserver
-func (c *App) AuthenticateAppservice(h http.Handler) http.Handler {
+func (c *App) AuthenticateHomeserver(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		access_token, err := ExtractAccessToken(r)
 
-		log.Println("Access token: ", *access_token)
-
 		if err != nil ||
 			access_token == nil ||
-			*access_token != c.Config.AppService.AccessToken {
+			*access_token != c.Config.AppService.HSAccessToken {
+
+			log.Println("error")
 
 			RespondWithJSON(w, &JSONResponse{
 				Code: http.StatusForbidden,

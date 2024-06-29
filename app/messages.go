@@ -12,7 +12,7 @@ import (
 	"github.com/tidwall/gjson"
 )
 
-type Event struct {
+type MessageEvent struct {
 	Type           string          `json:"type"`
 	Sender         string          `json:"sender"`
 	Content        json.RawMessage `json:"content"`
@@ -95,12 +95,12 @@ func (c *App) RoomMessages() http.HandlerFunc {
 	}
 }
 
-func (c *App) ProcessEvents(events []matrix_db.GetRoomMessagesRow) (*[]Event, error) {
+func (c *App) ProcessEvents(events []matrix_db.GetRoomMessagesRow) (*[]MessageEvent, error) {
 
-	processed := []Event{}
+	processed := []MessageEvent{}
 
 	for _, event := range events {
-		e := Event{
+		e := MessageEvent{
 			EventID: event.EventID,
 		}
 

@@ -91,7 +91,7 @@ func routes(c *App) chi.Router {
 	})
 
 	r.Route("/_matrix/app/v1", func(r chi.Router) {
-		//r.Use(c.AuthenticateAppservice)
+		r.Use(c.AuthenticateHomeserver)
 		r.Put("/transactions/{txnId}", c.Transactions())
 	})
 
