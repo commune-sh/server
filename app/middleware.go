@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -185,6 +186,33 @@ func (c *App) RequireAdmin(h http.Handler) http.Handler {
 				JSON: map[string]any{
 					"errcode": "M_FORBIDDEN",
 					"error":   "You are not a server admin",
+				},
+			})
+			return
+		}
+
+		h.ServeHTTP(w, r)
+
+	})
+}
+
+// This ensures that request is from Synapse Homeserver
+func (c *App) AuthenticateAppservice(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		access_token, err := ExtractAccessToken(r)
+
+		log.Println("Access token: ", *access_token)
+
+		if err != nil ||
+			access_token == nil ||
+			*access_token != c.Config.AppService.AccessToken {
+
+			RespondWithJSON(w, &JSONResponse{
+				Code: http.StatusForbidden,
+				JSON: map[string]any{
+					"errcode": "BAD_ACCESS_TOKEN",
+					"error":   "access token invalid",
 				},
 			})
 			return

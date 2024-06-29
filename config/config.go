@@ -13,6 +13,11 @@ type Config struct {
 		Domain string `toml:"domain" json:"domain"`
 		Port   int    `toml:"port" json:"port"`
 	} `toml:"app" json:"app"`
+	AppService struct {
+		SenderLocalPart string `json:"sender_local_part" toml:"sender_local_part"`
+		AccessToken     string `json:"access_token" toml:"access_token"`
+		HSAccessToken   string `json:"hs_access_token" toml:"hs_access_token"`
+	} `json:"appservice" toml:"appservice"`
 	Log struct {
 		File       string `toml:"file" json:"file"`
 		MaxSize    int    `toml:"max_size" json:"max_size"`

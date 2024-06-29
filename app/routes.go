@@ -39,6 +39,7 @@ func routes(c *App) chi.Router {
 		IsDevelopment:         false,
 		AllowedHosts: []string{
 			c.Config.App.Domain,
+			"http://localhost:8080",
 		},
 	}
 
@@ -87,6 +88,11 @@ func routes(c *App) chi.Router {
 
 	r.Route("/publicRooms", func(r chi.Router) {
 		r.Get("/", c.PublicRooms())
+	})
+
+	r.Route("/_matrix/app/v1", func(r chi.Router) {
+		//r.Use(c.AuthenticateAppservice)
+		r.Put("/transactions/{txnId}", c.Transactions())
 	})
 
 	r.Route("/", func(r chi.Router) {

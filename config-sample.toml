@@ -4,6 +4,11 @@ domain = "public.commune.sh"
 # The port the server will listen on
 port = 8989
 
+[appservice]
+sender_localpart = "public"
+access_token = "ot2ojahshee4Cee3eem7soTeilieR5pu"
+hs_access_token = "quie5fa5Baeneekah8uxeego5eepae9k"
+
 [matrix]
 # Local domain of the Synapse server
 homeserver = "localhost:8008"
