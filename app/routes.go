@@ -92,6 +92,7 @@ func routes(c *App) chi.Router {
 
 	r.Route("/_matrix/app/v1", func(r chi.Router) {
 		r.Use(c.AuthenticateHomeserver)
+		r.Post("/ping", c.RespondToPing())
 		r.Put("/transactions/{txnId}", c.Transactions())
 	})
 

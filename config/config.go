@@ -14,6 +14,7 @@ type Config struct {
 		Port   int    `toml:"port" json:"port"`
 	} `toml:"app" json:"app"`
 	AppService struct {
+		ID              string `json:"id" toml:"id"`
 		SenderLocalPart string `json:"sender_local_part" toml:"sender_local_part"`
 		AccessToken     string `json:"access_token" toml:"access_token"`
 		HSAccessToken   string `json:"hs_access_token" toml:"hs_access_token"`

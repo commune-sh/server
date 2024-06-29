@@ -5,6 +5,8 @@ domain = "public.commune.sh"
 port = 8989
 
 [appservice]
+# ID of the appservice registration
+id = "commune"
 # sender_localpart from the appservice registration
 sender_localpart = "public"
 # The access token from the appservice registration

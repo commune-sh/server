@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 )
 
@@ -27,10 +26,6 @@ func ReadRequestJSON[T any](r *http.Request, w http.ResponseWriter, p T) (T, err
 	err := json.NewDecoder(r.Body).Decode(&p)
 	if err != nil {
 		return p, errors.New("Bad request.")
-	}
-
-	if !PRODUCTION_MODE {
-		log.Println(" Received JSON request with payload: ", p)
 	}
 
 	return p, nil
