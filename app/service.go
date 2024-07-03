@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -27,7 +28,18 @@ func (c *App) Transactions() http.HandlerFunc {
 		}
 
 		for _, event := range events.Events {
-			c.Log.Info().Msgf("Event: %v", event)
+			if event.RoomID != "" {
+				c.Log.Info().Msgf("Event: %v", event)
+			}
+
+			join, err := c.Matrix.JoinRoom(context.Background(), event.RoomID.String(), "", nil)
+
+			if err != nil {
+				c.Log.Error().Msgf("Error joining room: %v", err)
+			}
+
+			c.Log.Info().Msgf("Join response: %v", join)
+
 		}
 
 		RespondWithJSON(w, &JSONResponse{
